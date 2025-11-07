@@ -1,0 +1,15 @@
+{
+  "rules": [
+    {
+      "allowed_origins": [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "https://animal-yapping.com"
+      ],
+      "allowed_methods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+      "allowed_headers": ["*"],
+      "expose_headers": ["ETag"],
+      "max_age_seconds": 3600
+    }
+  ]
+}

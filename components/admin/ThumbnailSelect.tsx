@@ -1,27 +1,36 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { RefreshCwIcon, CheckIcon } from "lucide-react";
 import { useThumbnailGeneration } from "@/hooks/useThumbnailGeneration";
-import { useVideoPublish } from "@/hooks/useVideoPublish";
+import { useStreamUpload } from "@/hooks/useStreamUpload";
+import { setStreamThumbnail } from "@/app/actions/stream-upload";
+import { uploadVideo } from "@/app/actions/video";
+import { toast } from "sonner";
 import type { UploadData } from "./AddVideoDialog";
 
 type ThumbnailSelectProps = {
   uploadData: UploadData;
-  onComplete: () => void;
+  onPublishSuccess: (videoId: string) => void;
   onBack: () => void;
 };
 
 export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
   uploadData,
-  onComplete,
+  onPublishSuccess,
   onBack,
 }) => {
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishProgress, setPublishProgress] = useState(0);
+
+  // Client-side thumbnail generation
   const {
     thumbnails,
     selectedThumbnail,
-    setSelectedThumbnail,
+    selectedTimestamp,
+    handleSelectThumbnail,
     isGenerating,
     regenerateThumbnails,
   } = useThumbnailGeneration({
@@ -29,11 +38,12 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
     videoType: uploadData.videoType,
   });
 
-  const { publishVideo, uploadProgress, optimisticProgress, isPending } =
-    useVideoPublish();
+  // Stream upload hook (will be used in handlePublish)
+  const { uploadToStream } = useStreamUpload();
 
   const handlePublish = async () => {
-    if (!selectedThumbnail) {
+    if (!selectedThumbnail || selectedTimestamp === null) {
+      toast.error("Please select a thumbnail");
       return;
     }
 
@@ -43,21 +53,74 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
       !uploadData.title ||
       !uploadData.videoType
     ) {
+      toast.error("Missing required data");
       return;
     }
 
-    const success = await publishVideo({
-      videoFile: uploadData.videoFile,
-      thumbnailDataUrl: selectedThumbnail,
-      gameType: uploadData.gameType,
-      videoType: uploadData.videoType,
-      title: uploadData.title,
-      description: uploadData.description,
-      tags: uploadData.tags,
-    });
+    setIsPublishing(true);
+    setPublishProgress(0);
 
-    if (success) {
-      onComplete();
+    try {
+      // Step 1: Upload video to Stream (0% → 60%)
+      setPublishProgress(10);
+      toast.info("Uploading video to Stream...");
+
+      const videoUid = await uploadToStream(uploadData.videoFile);
+
+      if (!videoUid) {
+        toast.error("Failed to upload video");
+        setIsPublishing(false);
+        return;
+      }
+
+      setPublishProgress(60);
+
+      // Step 2: Set thumbnail on Stream (60% → 80%)
+      toast.info("Setting thumbnail...");
+
+      const thumbResult = await setStreamThumbnail({
+        videoUid,
+        thumbnailDataUrl: selectedThumbnail,
+        timestamp: selectedTimestamp,
+      });
+
+      if (!thumbResult.success) {
+        toast.error(thumbResult.error || "Failed to set thumbnail");
+        setIsPublishing(false);
+        return;
+      }
+
+      setPublishProgress(80);
+
+      // Step 3: Save metadata to database (80% → 100%)
+      toast.info("Saving video metadata...");
+
+      const result = await uploadVideo({
+        streamUid: videoUid,
+        gameType: uploadData.gameType,
+        videoType: uploadData.videoType,
+        title: uploadData.title,
+        description: uploadData.description,
+        tags: uploadData.tags,
+        duration: uploadData.duration || undefined,
+      });
+
+      setPublishProgress(100);
+
+      if (result.success) {
+        toast.success("Video published successfully!");
+        // Call parent's success handler with videoId
+        if (result.videoId) {
+          onPublishSuccess(result.videoId);
+        }
+      } else {
+        toast.error(result.error || "Failed to publish video");
+      }
+    } catch (error) {
+      console.error("Publish error:", error);
+      toast.error("Failed to publish video");
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -78,7 +141,9 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
             {thumbnails.map((thumbnail) => (
               <Button
                 key={thumbnail.id}
-                onClick={() => setSelectedThumbnail(thumbnail.data)}
+                onClick={() =>
+                  handleSelectThumbnail(thumbnail.data, thumbnail.timestamp)
+                }
                 variant="ghost"
                 className={`relative overflow-hidden rounded-lg border-2 transition-all cursor-pointer h-auto p-0 hover:bg-transparent ${
                   uploadData.videoType === "Shorts"
@@ -111,10 +176,10 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
             <Button
               onClick={regenerateThumbnails}
               variant="ghost"
-              className="text-white cursor-pointer"
-              disabled={isGenerating || isPending}
+              className="group text-white cursor-pointer hover:bg-transparent hover:text-purple-300 hover:scale-110 transition-all duration-300"
+              disabled={isGenerating || isPublishing}
             >
-              <RefreshCwIcon className="size-4 mr-2" />
+              <RefreshCwIcon className="size-4 mr-2 transition-transform duration-500 ease-in-out group-hover:rotate-180" />
               Try Again
             </Button>
           </div>
@@ -125,11 +190,11 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
         </div>
       )}
 
-      {isPending && (
+      {isPublishing && (
         <div className="space-y-2">
-          <Progress value={optimisticProgress} className="h-2" />
+          <Progress value={publishProgress} className="h-2" />
           <p className="text-sm text-white/60 text-center">
-            Publishing video... {optimisticProgress}%
+            Publishing video... {publishProgress}%
           </p>
         </div>
       )}
@@ -139,19 +204,18 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
           onClick={onBack}
           variant="ghost"
           className="text-white cursor-pointer"
-          disabled={isPending}
+          disabled={isPublishing}
         >
           Back
         </Button>
         <Button
           onClick={handlePublish}
-          disabled={!selectedThumbnail || isPending || isGenerating}
+          disabled={!selectedThumbnail || isPublishing || isGenerating}
           className="bg-green-600 text-white hover:bg-green-700 border border-green-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isPending ? "Publishing..." : "Publish Video"}
+          {isPublishing ? "Publishing..." : "Publish Video"}
         </Button>
       </div>
     </div>
   );
 };
-

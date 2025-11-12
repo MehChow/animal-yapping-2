@@ -4,6 +4,8 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -12,7 +14,9 @@ import { VideoUpload } from "./VideoUpload";
 import { VideoMetadata } from "./VideoMetadata";
 import { ThumbnailSelect } from "./ThumbnailSelect";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, PartyPopperIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -20,42 +24,67 @@ export type UploadData = {
   gameType: string;
   videoFile: File | null;
   videoType: "Normal" | "Shorts" | null;
-  videoUrl: string | null;
+  duration: number | null;
   title: string;
   description: string;
   tags: string[];
-  selectedThumbnail: string | null;
 };
 
 export const AddVideoDialog = () => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>(1);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [publishedVideoId, setPublishedVideoId] = useState<string | null>(null);
   const [uploadData, setUploadData] = useState<UploadData>({
     gameType: "",
     videoFile: null,
     videoType: null,
-    videoUrl: null,
+    duration: null,
     title: "",
     description: "",
     tags: [],
-    selectedThumbnail: null,
   });
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      // Reset state when dialog closes
-      setCurrentStep(1);
-      setUploadData({
-        gameType: "",
-        videoFile: null,
-        videoType: null,
-        videoUrl: null,
-        title: "",
-        description: "",
-        tags: [],
-        selectedThumbnail: null,
-      });
+      // Small delay to ensure smooth closing before reset
+      setTimeout(() => {
+        setCurrentStep(1);
+        setUploadData({
+          gameType: "",
+          videoFile: null,
+          videoType: null,
+          duration: null,
+          title: "",
+          description: "",
+          tags: [],
+        });
+      }, 300);
+    }
+  };
+
+  const handlePublishSuccess = (videoId: string) => {
+    setPublishedVideoId(videoId);
+    setIsOpen(false); // Close upload dialog first
+    setTimeout(() => {
+      setShowSuccessDialog(true); // Show success dialog after upload dialog closes
+    }, 300);
+  };
+
+  const handleBackToAdmin = () => {
+    setShowSuccessDialog(false);
+    router.refresh();
+  };
+
+  const handleViewVideo = () => {
+    setShowSuccessDialog(false);
+    if (publishedVideoId) {
+      router.push(`/video/${publishedVideoId}`);
+      router.refresh();
+    } else {
+      toast.info("Video page coming soon!");
     }
   };
 
@@ -64,8 +93,17 @@ export const AddVideoDialog = () => {
     setCurrentStep(2);
   };
 
-  const handleVideoUpload = (file: File, videoType: "Normal" | "Shorts") => {
-    setUploadData((prev) => ({ ...prev, videoFile: file, videoType }));
+  const handleVideoUpload = (
+    file: File,
+    videoType: "Normal" | "Shorts",
+    duration: number
+  ) => {
+    setUploadData((prev) => ({
+      ...prev,
+      videoFile: file,
+      videoType,
+      duration,
+    }));
     setCurrentStep(3);
   };
 
@@ -127,10 +165,7 @@ export const AddVideoDialog = () => {
               <GameTypeSelect onSelect={handleGameTypeSelect} />
             )}
             {currentStep === 2 && (
-              <VideoUpload
-                onUpload={handleVideoUpload}
-                onBack={handleBack}
-              />
+              <VideoUpload onUpload={handleVideoUpload} onBack={handleBack} />
             )}
             {currentStep === 3 && (
               <VideoMetadata
@@ -146,14 +181,48 @@ export const AddVideoDialog = () => {
             {currentStep === 4 && uploadData.videoFile && (
               <ThumbnailSelect
                 uploadData={uploadData}
-                onComplete={handleThumbnailSelect}
+                onPublishSuccess={handlePublishSuccess}
                 onBack={handleBack}
               />
             )}
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
+          <DialogHeader>
+            <div className="flex items-center justify-center mb-4">
+              <div className="rounded-full bg-green-500/20 p-3">
+                <PartyPopperIcon className="size-8 text-green-500" />
+              </div>
+            </div>
+            <DialogTitle className="text-center text-2xl">
+              Video Uploaded Successfully!
+            </DialogTitle>
+            <DialogDescription className="text-center text-white/60 pt-2">
+              Your video has been published and is now live. What would you like
+              to do next?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
+            <Button
+              onClick={handleBackToAdmin}
+              variant="outline"
+              className="flex-1 border-white/20 text-black bg-white hover:bg-gray-200 cursor-pointer"
+            >
+              Back to Admin Panel
+            </Button>
+            <Button
+              onClick={handleViewVideo}
+              className="flex-1 bg-blue-400 text-white hover:bg-blue-500 cursor-pointer"
+            >
+              View the Video
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
-

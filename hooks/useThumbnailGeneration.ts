@@ -22,8 +22,16 @@ export const useThumbnailGeneration = ({
   const [selectedThumbnail, setSelectedThumbnail] = useState<string | null>(
     null
   );
+  const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(
+    null
+  );
   const [isGenerating, setIsGenerating] = useState(true);
   const hasGeneratedRef = useRef(false);
+
+  const handleSelectThumbnail = (data: string, timestamp: number) => {
+    setSelectedThumbnail(data);
+    setSelectedTimestamp(timestamp);
+  };
 
   const generateThumbnails = async (showToast: boolean = false) => {
     if (!videoFile || !videoType) {
@@ -42,6 +50,7 @@ export const useThumbnailGeneration = ({
 
       setThumbnails(generatedThumbnails);
       setSelectedThumbnail(null);
+      setSelectedTimestamp(null);
 
       if (showToast) {
         toast.success("Thumbnails regenerated!");
@@ -72,7 +81,8 @@ export const useThumbnailGeneration = ({
   return {
     thumbnails,
     selectedThumbnail,
-    setSelectedThumbnail,
+    selectedTimestamp,
+    handleSelectThumbnail,
     isGenerating,
     regenerateThumbnails,
   };

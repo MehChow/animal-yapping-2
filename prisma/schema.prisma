@@ -29,6 +29,7 @@ model User {
   likes         Like[]
   favorites     Favorite[]
   commentLikes  CommentLike[]
+  videoViews    VideoView[]
 
   @@map("user")
 }
@@ -105,10 +106,19 @@ model Video {
   gameType      String    // "Apex" or "Minecraft"
   videoType     String    @default("Normal") // "Normal" (16:9) or "Shorts" (9:16)
   tags          String[]  @default([])
+  
+  // CLOUDFLARE STREAM FIELDS
+  streamUid     String?   @unique // Cloudflare Stream video ID
+  duration      Float?    // Video duration in seconds
+  status        String    @default("ready") // "processing", "ready", "error"
+  thumbnailTime Float?    // DEPRECATED: kept for backwards compatibility
+
+  // DEPRECATED (keep for now for existing videos, remove later)
   thumbnailUrl  String?
-  videoUrl      String    // R2 URL
-  muxAssetId    String?   // Mux asset ID
-  muxPlaybackId String?   // Mux playback ID
+  videoUrl      String?
+  muxAssetId    String?
+  muxPlaybackId String?
+  
   viewCount     Int       @default(0)
   uploadedById  String
   uploadedBy    User      @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
@@ -117,11 +127,14 @@ model Video {
   comments      Comment[]
   likes         Like[]
   favorites     Favorite[]
+  views         VideoView[]
 
   @@index([uploadedById])
   @@index([createdAt])
   @@index([gameType])
   @@index([videoType])
+  @@index([streamUid])
+  @@index([status])
   @@map("video")
 }
 
@@ -132,12 +145,16 @@ model Comment {
   video     Video         @relation(fields: [videoId], references: [id], onDelete: Cascade)
   userId    String
   user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId  String?       // For flat reply structure
+  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]     @relation("CommentReplies")
+  likes     CommentLike[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  likes     CommentLike[]
 
-  @@index([videoId])
+  @@index([videoId, createdAt(sort: Desc)]) // For cursor-based pagination
   @@index([userId])
+  @@index([parentId])
   @@map("comment")
 }
 
@@ -166,6 +183,20 @@ model Favorite {
   @@unique([videoId, userId])
   @@index([userId])
   @@map("favorite")
+}
+
+model VideoView {
+  id        String   @id @default(cuid())
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  userId    String?  // Nullable to track anonymous views
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress String?  // For deduplication
+  createdAt DateTime @default(now())
+
+  @@index([videoId])
+  @@index([userId])
+  @@map("video_view")
 }
 
 model CommentLike {

@@ -11,7 +11,7 @@ import {
 } from "@/utils/video-utils";
 
 type VideoUploadProps = {
-  onUpload: (file: File, videoType: VideoType) => void;
+  onUpload: (file: File, videoType: VideoType, duration: number) => void;
   onBack: () => void;
 };
 
@@ -80,9 +80,10 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
   };
 
   const handleNext = () => {
-    if (file && videoType) {
-      onUpload(file, videoType);
-    }
+    if (!file || !videoType || !videoMetadata) return;
+
+    // Just pass to next step - no upload yet!
+    onUpload(file, videoType, videoMetadata.duration);
   };
 
   return (
@@ -157,7 +158,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
               onClick={handleRemoveFile}
               variant="ghost"
               size="icon-sm"
-              className="text-white/60 hover:text-white cursor-pointer"
+              className="text-white/60 hover:text-white hover:bg-transparent cursor-pointer"
             >
               <XIcon className="size-5" />
             </Button>
@@ -184,4 +185,3 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
     </div>
   );
 };
-

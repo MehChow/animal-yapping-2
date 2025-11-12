@@ -30,7 +30,7 @@
   border-radius: inherit;
   z-index: 0;
   animation: 5s spin-border linear infinite;
-  filter: blur(1.5rem);
+  filter: blur(1rem);
 }
 
 .light-gradient::after {
@@ -70,7 +70,7 @@
 
 .dark-gradient::after {
   z-index: 1;
-  filter: blur(1.5rem);
+  filter: blur(1rem);
 }
 
 @property --angle {
@@ -86,4 +86,19 @@
   to {
     --angle: 360deg;
   }
+}
+
+/* Gradient border wrapper needs padding for the border */
+.light-gradient,
+.dark-gradient {
+  background: black;
+  display: block;
+}
+
+/* Gradient content wrapper */
+.gradient-content {
+  position: relative;
+  z-index: 2;
+  background: black;
+  border-radius: 0.5rem;
 }

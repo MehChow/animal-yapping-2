@@ -29,15 +29,12 @@ export default async function HomePage() {
                 <>
                   {/* Video Title */}
                   <div className="flex flex-row gap-2 items-baseline">
-                    <p className="text-2xl font-bold text-green-400">
-                      Newest video:
+                    <p className="text-2xl font-bold text-purple-400">
+                      Newest video -
                     </p>
-                    <Link
-                      href={`/video/${latestVideo.id}`}
-                      className="text-xl font-medium text-white hover:text-green-400 transition-colors truncate"
-                    >
+                    <p className="text-xl font-medium text-white truncate">
                       {latestVideo.title}
-                    </Link>
+                    </p>
                   </div>
 
                   {/* Newest Video with Gradient Border */}

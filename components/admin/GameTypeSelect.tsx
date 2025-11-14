@@ -11,6 +11,8 @@ export const GameTypeSelect: React.FC<GameTypeSelectProps> = ({ onSelect }) => {
   const games = [
     { id: "Apex", name: "Apex Legends", image: "/games/apex.jpg" },
     { id: "Minecraft", name: "Minecraft", image: "/games/minecraft.webp" },
+    { id: "Valorant", name: "Valorant", image: "/games/valorant.jpg" },
+    { id: "CSGO", name: "CSGO", image: "/games/csgo.png" },
   ];
 
   return (

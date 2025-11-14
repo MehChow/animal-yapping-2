@@ -1,6 +1,7 @@
 "use client";
 
 import { useInfinityScroll } from "@/hooks/useInfinityScroll";
+import Image from "next/image";
 
 export const CommunityFeed = () => {
   const fetchMore = async () => {
@@ -29,10 +30,17 @@ export const CommunityFeed = () => {
         {items.map((item) => (
           <div
             key={item.id}
-            className="border-2 border-red-500/50 rounded-lg p-4 bg-gray-900/30 hover:border-red-500 transition-all duration-300"
+            className="border-0 rounded-lg p-4 bg-gray-900 transition-all duration-300"
           >
             <div className="flex items-start gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-gray-700 border-2 border-red-500/50" />
+              <div className="w-10 h-10 rounded-full relative">
+                <Image
+                  src="/default_icon.png"
+                  alt="User"
+                  fill
+                  className="object-cover rounded-full"
+                />
+              </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-white">[Admin name]</p>
                 <p className="text-xs text-gray-400">[Post date]</p>

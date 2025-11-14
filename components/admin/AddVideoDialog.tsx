@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,10 +14,7 @@ import { VideoMetadata } from "./VideoMetadata";
 import { ThumbnailSelect } from "./ThumbnailSelect";
 import { Button } from "@/components/ui/button";
 import { PlusIcon, PartyPopperIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-
-type Step = 1 | 2 | 3 | 4;
+import { useUploadVideo } from "@/hooks/useUploadVideo";
 
 export type UploadData = {
   gameType: string;
@@ -31,116 +27,23 @@ export type UploadData = {
 };
 
 export const AddVideoDialog = () => {
-  const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentStep, setCurrentStep] = useState<Step>(1);
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [publishedVideoId, setPublishedVideoId] = useState<string | null>(null);
-  const [uploadData, setUploadData] = useState<UploadData>({
-    gameType: "",
-    videoFile: null,
-    videoType: null,
-    duration: null,
-    title: "",
-    description: "",
-    tags: [],
-  });
-
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
-      // Small delay to ensure smooth closing before reset
-      setTimeout(() => {
-        setCurrentStep(1);
-        setUploadData({
-          gameType: "",
-          videoFile: null,
-          videoType: null,
-          duration: null,
-          title: "",
-          description: "",
-          tags: [],
-        });
-      }, 300);
-    }
-  };
-
-  const handlePublishSuccess = (videoId: string) => {
-    setPublishedVideoId(videoId);
-    setIsOpen(false); // Close upload dialog first
-    setTimeout(() => {
-      setShowSuccessDialog(true); // Show success dialog after upload dialog closes
-    }, 300);
-  };
-
-  const handleBackToAdmin = () => {
-    setShowSuccessDialog(false);
-    router.refresh();
-  };
-
-  const handleViewVideo = () => {
-    setShowSuccessDialog(false);
-    if (publishedVideoId) {
-      router.push(`/video/${publishedVideoId}`);
-      router.refresh();
-    } else {
-      toast.info("Video page coming soon!");
-    }
-  };
-
-  const handleGameTypeSelect = (gameType: string) => {
-    setUploadData((prev) => ({ ...prev, gameType }));
-    setCurrentStep(2);
-  };
-
-  const handleVideoUpload = (
-    file: File,
-    videoType: "Normal" | "Shorts",
-    duration: number
-  ) => {
-    setUploadData((prev) => ({
-      ...prev,
-      videoFile: file,
-      videoType,
-      duration,
-    }));
-    setCurrentStep(3);
-  };
-
-  const handleMetadataSubmit = (data: {
-    title: string;
-    description: string;
-    tags: string[];
-  }) => {
-    setUploadData((prev) => ({ ...prev, ...data }));
-    setCurrentStep(4);
-  };
-
-  const handleThumbnailSelect = () => {
-    // Upload is handled in ThumbnailSelect component
-    setIsOpen(false);
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => (prev - 1) as Step);
-    }
-  };
-
-  const getStepTitle = () => {
-    switch (currentStep) {
-      case 1:
-        return "Select Game Type";
-      case 2:
-        return "Upload Video";
-      case 3:
-        return "Enter Video Details";
-      case 4:
-        return "Select Thumbnail";
-      default:
-        return "";
-    }
-  };
+  const {
+    isOpen,
+    setIsOpen,
+    currentStep,
+    showSuccessDialog,
+    setShowSuccessDialog,
+    uploadData,
+    handleOpenChange,
+    handlePublishSuccess,
+    handleBackToAdmin,
+    handleViewVideo,
+    handleGameTypeSelect,
+    handleVideoUpload,
+    handleMetadataSubmit,
+    handleBack,
+    getStepTitle,
+  } = useUploadVideo();
 
   return (
     <>

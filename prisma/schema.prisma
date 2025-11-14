@@ -111,13 +111,6 @@ model Video {
   streamUid     String?   @unique // Cloudflare Stream video ID
   duration      Float?    // Video duration in seconds
   status        String    @default("ready") // "processing", "ready", "error"
-  thumbnailTime Float?    // DEPRECATED: kept for backwards compatibility
-
-  // DEPRECATED (keep for now for existing videos, remove later)
-  thumbnailUrl  String?
-  videoUrl      String?
-  muxAssetId    String?
-  muxPlaybackId String?
   
   viewCount     Int       @default(0)
   uploadedById  String

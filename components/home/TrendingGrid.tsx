@@ -16,7 +16,7 @@ export const TrendingGrid = () => {
 
   return (
     <div className="flex flex-col gap-2 flex-1 overflow-hidden transition-all duration-300">
-      <h3 className="text-xl font-semibold text-orange-400">Trendings</h3>
+      <h3 className="text-xl font-semibold text-orange-400">🔥Trendings</h3>
       <div
         className="flex-1 overflow-y-auto min-h-0 pr-2 [&::-webkit-scrollbar]:w-1
   [&::-webkit-scrollbar-track]:rounded-full
@@ -28,7 +28,7 @@ export const TrendingGrid = () => {
           {items.map((item) => (
             <div
               key={item.id}
-              className="aspect-video bg-gray-800 rounded-lg border-2 border-orange-500/30 hover:border-orange-500 transition-all duration-300 flex items-center justify-center cursor-pointer"
+              className="aspect-video bg-gray-800 rounded-lg border-0 hover:brightness-110 transition-all duration-300 flex items-center justify-center cursor-pointer"
             >
               <span className="text-gray-500 text-xs">#{item.id + 1}</span>
             </div>

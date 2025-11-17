@@ -44,17 +44,17 @@ export async function Header() {
         {/* Desktop Navigation Menu (hidden on mobile, shown on desktop) - Truly centered */}
         <NavigationMenu className="hidden lg:flex absolute left-1/2 -translate-x-1/2">
           <NavigationMenuList>
-            {/* Explore */}
+            {/* Shorts */}
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link
-                  href="/explore"
+                  href="/shorts"
                   className={cn(
                     navigationMenuTriggerStyle(),
                     "text-white hover:text-white/80 hover:bg-white/10 focus:bg-white/10 bg-transparent focus:text-purple-300"
                   )}
                 >
-                  Explore
+                  Shorts
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>

@@ -6,7 +6,10 @@ import { Progress } from "@/components/ui/progress";
 import { RefreshCwIcon, CheckIcon } from "lucide-react";
 import { useThumbnailGeneration } from "@/hooks/useThumbnailGeneration";
 import { useStreamUpload } from "@/hooks/useStreamUpload";
-import { setStreamThumbnail } from "@/app/actions/stream-upload";
+import {
+  setStreamThumbnail,
+  checkStreamVideoStatus,
+} from "@/app/actions/stream-upload";
 import { uploadVideo } from "@/app/actions/video";
 import { toast } from "sonner";
 import type { UploadData } from "./AddVideoDialog";
@@ -65,7 +68,15 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
       setPublishProgress(10);
       toast.info("Uploading video to Stream...");
 
-      const videoUid = await uploadToStream(uploadData.videoFile);
+      const thumbnailTimestampPct =
+        uploadData.duration && uploadData.duration > 0
+          ? Math.min(1, Math.max(0, selectedTimestamp / uploadData.duration))
+          : 0;
+
+      const videoUid = await uploadToStream({
+        videoFile: uploadData.videoFile,
+        thumbnailTimestampPct,
+      });
 
       if (!videoUid) {
         toast.error("Failed to upload video");
@@ -75,8 +86,23 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
 
       setPublishProgress(60);
 
-      // Step 2: Set thumbnail on Stream (60% → 80%)
-      toast.info("Setting thumbnail...");
+      // Step 2: Wait for video processing and set thumbnail (60% → 80%)
+      toast.info("Processing video and setting thumbnail...");
+
+      // Wait up to 30 seconds for video to be ready
+      let attempts = 0;
+      const maxAttempts = 30;
+      while (attempts < maxAttempts) {
+        const statusResult = await checkStreamVideoStatus({ uid: videoUid });
+        if (statusResult.success && statusResult.ready) {
+          break;
+        }
+        // Update progress during waiting (60% to 75%)
+        const progressIncrement = (15 / maxAttempts) * attempts;
+        setPublishProgress(60 + Math.round(progressIncrement));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        attempts++;
+      }
 
       const thumbResult = await setStreamThumbnail({
         videoUid,
@@ -186,7 +212,9 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
         </>
       ) : (
         <div className="text-center py-12 text-white/60">
-          <p>No thumbnails available. Click "Try Again" to generate.</p>
+          <p>
+            No thumbnails available. Click &quot;Try Again&quot; to generate.
+          </p>
         </div>
       )}
 

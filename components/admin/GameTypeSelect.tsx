@@ -13,6 +13,12 @@ export const GameTypeSelect: React.FC<GameTypeSelectProps> = ({ onSelect }) => {
     { id: "Minecraft", name: "Minecraft", image: "/games/minecraft.webp" },
     { id: "Valorant", name: "Valorant", image: "/games/valorant.jpg" },
     { id: "CSGO", name: "CSGO", image: "/games/csgo.png" },
+    {
+      id: "Genshin Impact",
+      name: "Genshin Impact",
+      image: "/games/genshin.webp",
+    },
+    { id: "Star rail", name: "Star rail", image: "/games/star-rail.webp" },
   ];
 
   return (

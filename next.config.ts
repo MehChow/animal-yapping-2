@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
       },
+      {
+        protocol: "https",
+        hostname: "customer-t8f0evtjgdy9lgms.cloudflarestream.com",
+      },
     ],
   },
 };

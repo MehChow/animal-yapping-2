@@ -3,9 +3,7 @@
 import { requireRole } from "@/lib/auth-utils";
 
 type GetStreamUploadUrlInput = {
-  fileName: string;
   fileSize: number;
-  maxDurationSeconds?: number;
 };
 
 export const getStreamUploadUrl = async (input: GetStreamUploadUrlInput) => {
@@ -13,7 +11,7 @@ export const getStreamUploadUrl = async (input: GetStreamUploadUrlInput) => {
     // Verify admin role
     await requireRole(["Admin"]);
 
-    const { fileName, fileSize, maxDurationSeconds = 21600 } = input;
+    const { fileSize } = input;
 
     // Validate file size (200MB)
     const MAX_SIZE = 200 * 1024 * 1024;
@@ -34,42 +32,10 @@ export const getStreamUploadUrl = async (input: GetStreamUploadUrlInput) => {
       };
     }
 
-    // Create direct upload URL
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          maxDurationSeconds,
-          expiry: new Date(Date.now() + 3600000).toISOString(), // 1 hour
-          meta: {
-            name: fileName,
-            environment: process.env.NODE_ENV || "development",
-          },
-          requireSignedURLs: false, // Set to true for private videos
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      console.error("Stream API error:", error);
-      return {
-        success: false,
-        error: "Failed to get upload URL from Stream",
-      };
-    }
-
-    const data = await response.json();
-
     return {
       success: true,
-      uploadUrl: data.result.uploadURL,
-      uid: data.result.uid,
+      uploadUrl: `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream`,
+      apiToken,
     };
   } catch (error) {
     console.error("Error getting Stream upload URL:", error);
@@ -146,27 +112,38 @@ export const setStreamThumbnail = async (input: SetStreamThumbnailInput) => {
       };
     }
 
-    // Option 1: Try to set thumbnail timestamp first (simpler)
-    const timestampResponse = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/${videoUid}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          thumbnailTimestampPct: timestamp / 100, // Convert to percentage
-        }),
-      }
-    );
+    // Option 1: Try to set thumbnail timestamp first (requires video to be processed)
+    const statusResult = await checkStreamVideoStatus({ uid: videoUid });
+    if (
+      statusResult.success &&
+      statusResult.duration &&
+      statusResult.duration > 0
+    ) {
+      const thumbnailTimestampPct = Math.max(
+        0,
+        Math.min(1, timestamp / statusResult.duration)
+      );
+      const timestampResponse = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/${videoUid}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            thumbnailTimestampPct,
+          }),
+        }
+      );
 
-    if (timestampResponse.ok) {
-      return {
-        success: true,
-        message: "Thumbnail set successfully",
-        method: "timestamp",
-      };
+      if (timestampResponse.ok) {
+        return {
+          success: true,
+          message: "Thumbnail timestamp set successfully",
+          method: "timestamp",
+        };
+      }
     }
 
     // Option 2: If timestamp fails, try uploading custom image
@@ -213,8 +190,7 @@ export const setStreamThumbnail = async (input: SetStreamThumbnailInput) => {
     console.error("Error setting thumbnail:", error);
     return {
       success: false,
-      error:
-        error instanceof Error ? error.message : "Failed to set thumbnail",
+      error: error instanceof Error ? error.message : "Failed to set thumbnail",
     };
   }
 };

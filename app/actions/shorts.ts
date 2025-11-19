@@ -14,7 +14,7 @@ export const getLatestShorts = async (limit: number = 10) => {
       },
       take: limit,
       orderBy: {
-        createdAt: "desc", // Get most recent ones first, then we'll shuffle
+        createdAt: "desc",
       },
       include: {
         uploadedBy: {
@@ -37,31 +37,16 @@ export const getLatestShorts = async (limit: number = 10) => {
       return {
         success: true,
         shorts: [],
-        latestVideoId: null,
       };
-    }
-
-    // Step 2: Identify the latest video (first in the array since we ordered by createdAt desc)
-    const latestVideoId = allVideos[0].id;
-
-    // Step 3: Shuffle all videos together (including the latest)
-    const shuffledVideos = [...allVideos];
-    for (let i = shuffledVideos.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledVideos[i], shuffledVideos[j]] = [
-        shuffledVideos[j],
-        shuffledVideos[i],
-      ];
     }
 
     return {
       success: true,
-      shorts: shuffledVideos.map((short) => ({
+      shorts: allVideos.map((short) => ({
         ...short,
         createdAt: short.createdAt.toISOString(),
         updatedAt: short.updatedAt.toISOString(),
       })),
-      latestVideoId, // Return the ID so frontend knows which one to highlight
     };
   } catch (error) {
     console.error("Error fetching latest shorts:", error);

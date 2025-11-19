@@ -131,10 +131,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({
           <div className="flex items-start gap-4">
             <FileVideoIcon className="size-12 text-white/60 shrink-0 mt-1" />
             <div className="flex-1 min-w-0 overflow-hidden">
-              <h4
-                className="text-lg font-medium text-white truncate"
-                title={file.name}
-              >
+              <h4 className="text-lg font-medium text-white" title={file.name}>
                 {file.name}
               </h4>
               <p className="text-sm text-white/60 mt-1">

@@ -53,7 +53,14 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ videoId }) => {
 
   return (
     <>
-      <div className="h-full flex flex-col bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+      <div
+        ref={scrollContainerRef}
+        className="flex flex-col h-full w-full bg-white/5 border border-white/10 rounded-lg overflow-y-auto min-h-0 [&::-webkit-scrollbar]:w-1
+  [&::-webkit-scrollbar-track]:rounded-full
+  [&::-webkit-scrollbar-track]:bg-transparent
+  [&::-webkit-scrollbar-thumb]:rounded-full
+  [&::-webkit-scrollbar-thumb]:bg-white/20"
+      >
         {/* Header */}
         <div className="p-4 border-b border-white/10">
           <h2 className="text-lg font-semibold">
@@ -64,11 +71,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ videoId }) => {
         {/* Comment Input */}
         <div className="p-4 border-b border-white/10 space-y-3">
           <Textarea
-            placeholder={
-              session
-                ? "Add a comment..."
-                : "Login to comment"
-            }
+            placeholder={session ? "Add a comment..." : "Login to comment"}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             onFocus={() => {
@@ -101,10 +104,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ videoId }) => {
         </div>
 
         {/* Comments List */}
-        <div
-          ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto p-4 space-y-4"
-        >
+        <div className="p-4 space-y-4">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="size-8 animate-spin text-white/60" />
@@ -143,4 +143,3 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ videoId }) => {
     </>
   );
 };
-

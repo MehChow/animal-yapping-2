@@ -17,6 +17,7 @@ export default async function VideoPage({ params }: Props) {
   }
 
   const { video } = result;
+  const isNormal = video.videoType === "Normal";
 
   if (!video.streamUid) {
     return (
@@ -34,18 +35,25 @@ export default async function VideoPage({ params }: Props) {
   return (
     <div className="h-screen bg-black text-white pt-16 overflow-hidden">
       {/* Desktop: Side-by-side, Mobile: Stacked */}
-      <div className="container mx-auto px-4 py-3 h-full">
-        <div className="flex flex-col lg:flex-row gap-3 h-full">
-          {/* Left Column: Video Player + Info */}
-          <div className="flex-1 flex flex-col gap-2 min-h-0">
+      <div className="container mx-auto px-4 py-3 h-full flex flex-col lg:flex-row lg:gap-2 transition-all duration-300">
+        {/* Video container */}
+        <div
+          className={`flex-col flex gap-2 ${isNormal ? "flex-1" : "h-[60%]"}`}
+        >
+          <div className={`justify-center ${isNormal ? "" : "h-[80%] flex"}`}>
             <VideoPlayer video={video} />
-            <VideoInfo video={video} />
           </div>
 
-          {/* Right Column: Comment Section */}
-          <div className="lg:w-96 xl:w-[28rem] h-full">
-            <CommentSection videoId={video.id} />
+          <div className="flex justify-center py-2">
+            <div className="w-full max-w-4xl">
+              <VideoInfo video={video} />
+            </div>
           </div>
+        </div>
+
+        {/* Comment section */}
+        <div className="flex min-h-0 w-full">
+          <CommentSection videoId={video.id} />
         </div>
       </div>
     </div>

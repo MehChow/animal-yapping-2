@@ -31,21 +31,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video }) => {
 
   return (
     <div
-      className={`relative w-full overflow-hidden rounded-lg border border-white/10 bg-black ${
+      className={`rounded-lg border border-white/10 bg-black overflow-hidden ${
         video.videoType === "Shorts"
-          ? "aspect-9/16 max-w-md mx-auto"
-          : "aspect-video"
+          ? "h-full aspect-9/16"
+          : "aspect-video max-h-full max-w-full"
       }`}
     >
-      <Stream
-        controls
-        src={video.streamUid}
-        autoplay
-        muted
-        preload="auto"
-        width="100%"
-        height="100%"
-      />
+      <Stream controls src={video.streamUid} autoplay muted preload="auto" />
     </div>
   );
 };

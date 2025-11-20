@@ -49,7 +49,7 @@ export const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
+      <div className="flex flex-col gap-2 w-full">
         {/* Title + Metadata Row */}
         <div className="flex items-start justify-between gap-3">
           {/* Left: Title */}
@@ -138,11 +138,9 @@ export const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
 
         {/* Compact description with line clamp */}
         {video.description && (
-          <div className="p-2 bg-white/5 rounded-lg border border-white/10">
-            <p className="text-white/80 text-sm line-clamp-3">
-              {video.description}
-            </p>
-          </div>
+          <p className="text-white/80 text-sm line-clamp-3">
+            {video.description}
+          </p>
         )}
       </div>
 

@@ -33,7 +33,13 @@ export async function Header() {
         <div className="hidden lg:flex lg:items-center">
           <Link href="/" className="flex items-center gap-2 cursor-pointer">
             <div className="relative aspect-video w-16">
-              <Image src="/logo.jpg" alt="Logo" fill className="rounded-lg" />
+              <Image
+                src="/logo.jpg"
+                alt="Logo"
+                fill
+                className="rounded-lg"
+                sizes="5vw"
+              />
             </div>
             <span className="text-white text-2xl font-bold">
               ANIMAL YAPPING

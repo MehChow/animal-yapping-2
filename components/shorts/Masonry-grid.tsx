@@ -19,6 +19,10 @@ type MasonryComponentProps = {
 };
 
 const MasonryComponent = ({ shorts }: MasonryComponentProps) => {
+  if (shorts.length === 0) {
+    return <div className="text-white text-center">No shorts found</div>;
+  }
+
   return (
     <Masonry
       items={shorts}
@@ -30,7 +34,12 @@ const MasonryComponent = ({ shorts }: MasonryComponentProps) => {
   );
 };
 
-const MasonryCard = ({ index, data }: { index: number; data: Video }) => {
+type MasonryCardProps = {
+  index: number;
+  data: Video;
+};
+
+const MasonryCard = ({ index, data }: MasonryCardProps) => {
   // The video with latestVideoId gets the gradient border when fully loaded
   const isLatestVideo = index === 0;
 
@@ -45,6 +54,7 @@ const MasonryCard = ({ index, data }: { index: number; data: Video }) => {
               alt={data.title}
               fill
               className="object-cover transition-opacity duration-300 rounded-2xl z-10"
+              sizes="(max-width: 600px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
             />
           </div>
         </div>

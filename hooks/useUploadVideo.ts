@@ -24,6 +24,7 @@ export const useUploadVideo = () => {
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (open) {
+      setCurrentStep(1);
       setUploadData({
         gameType: "",
         videoFile: null,
@@ -36,26 +37,20 @@ export const useUploadVideo = () => {
     }
   };
 
-  const handleAddVideo = () => {
-    // Reset state before opening the dialog
-    setCurrentStep(1);
-    setUploadData({
-      gameType: "",
-      videoFile: null,
-      videoType: null,
-      duration: null,
-      title: "",
-      description: "",
-      tags: [],
-    });
-    setIsOpen(true);
-  };
-
   const handlePublishSuccess = (videoId: string) => {
     setPublishedVideoId(videoId);
     setIsOpen(false); // Close upload dialog first
     setTimeout(() => {
       setCurrentStep(1);
+      setUploadData({
+        gameType: "",
+        videoFile: null,
+        videoType: null,
+        duration: null,
+        title: "",
+        description: "",
+        tags: [],
+      });
       setShowSuccessDialog(true); // Show success dialog after upload dialog closes
     }, 300);
   };
@@ -136,7 +131,6 @@ export const useUploadVideo = () => {
     uploadData,
     setUploadData,
     handleOpenChange,
-    handleAddVideo,
     handlePublishSuccess,
     handleBackToAdmin,
     handleViewVideo,

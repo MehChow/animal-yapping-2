@@ -35,10 +35,12 @@ export default async function VideoPage({ params }: Props) {
   return (
     <div className="h-screen bg-black text-white pt-16 overflow-hidden">
       {/* Desktop: Side-by-side, Mobile: Stacked */}
-      <div className="container mx-auto px-4 py-3 h-full flex flex-col lg:flex-row lg:gap-2 transition-all duration-300">
+      <div className="container mx-auto px-4 py-3 h-full flex flex-col justify-center lg:flex-row lg:gap-2 transition-all duration-300">
         {/* Video container */}
         <div
-          className={`flex-col flex gap-2 ${isNormal ? "flex-1" : "h-[60%]"}`}
+          className={`flex-col flex gap-2 ${
+            isNormal ? "flex-1 " : "h-[60%]"
+          } lg:h-full`}
         >
           <div className={`justify-center ${isNormal ? "" : "h-[80%] flex"}`}>
             <VideoPlayer video={video} />
@@ -52,7 +54,7 @@ export default async function VideoPage({ params }: Props) {
         </div>
 
         {/* Comment section */}
-        <div className="flex min-h-0 w-full">
+        <div className="flex min-h-0 w-full lg:w-[40%]">
           <CommentSection videoId={video.id} />
         </div>
       </div>

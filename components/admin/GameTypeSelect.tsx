@@ -19,6 +19,11 @@ export const GameTypeSelect: React.FC<GameTypeSelectProps> = ({ onSelect }) => {
       image: "/games/genshin.webp",
     },
     { id: "Star rail", name: "Star rail", image: "/games/star-rail.webp" },
+    {
+      id: "Heaven Burns Red",
+      name: "Heaven Burns Red",
+      image: "/games/heaven-burns-red.jpeg",
+    },
   ];
 
   return (
@@ -39,7 +44,9 @@ export const GameTypeSelect: React.FC<GameTypeSelectProps> = ({ onSelect }) => {
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-20" />
           <div className="absolute bottom-0 left-0 right-0 p-4 z-30">
-            <h3 className="text-2xl font-bold text-white">{game.name}</h3>
+            <h3 className="text-2xl font-bold text-white whitespace-normal">
+              {game.name}
+            </h3>
           </div>
         </Button>
       ))}

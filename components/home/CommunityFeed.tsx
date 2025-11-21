@@ -16,17 +16,11 @@ export const CommunityFeed = () => {
   });
 
   return (
-    <div className="flex flex-col gap-3 h-full transition-all duration-300">
-      <h2 className="text-2xl font-semibold text-blue-400 text-center pb-1">
-        Posts
+    <div className="flex flex-col h-full transition-all duration-300">
+      <h2 className="text-2xl font-semibold text-blue-400 text-center mb-4">
+        💬Bullsheet
       </h2>
-      <div
-        className="flex-1 overflow-y-auto space-y-3 pr-2 transition-all duration-300 [&::-webkit-scrollbar]:w-1
-  [&::-webkit-scrollbar-track]:rounded-full
-  [&::-webkit-scrollbar-track]:bg-transparent
-  [&::-webkit-scrollbar-thumb]:rounded-full
-  [&::-webkit-scrollbar-thumb]:bg-blue-200"
-      >
+      <div className="flex-1 overflow-y-auto space-y-3 transition-all duration-300 [&::-webkit-scrollbar]:w-0">
         {items.map((item) => (
           <div
             key={item.id}

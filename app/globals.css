@@ -11,6 +11,10 @@
   --clr-6: #ffd194;
 }
 
+@utility no-scrollbar {
+  @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}
+
 .light-gradient,
 .dark-gradient {
   position: relative;

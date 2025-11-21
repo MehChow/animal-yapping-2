@@ -10,6 +10,10 @@ import {
   formatRelativeTime,
 } from "@/lib/format-utils";
 import Link from "next/link";
+import { LatestVideo } from "@/components/home/LatestVideo";
+import { Video } from "@/types/video";
+import { getLatestShorts } from "./actions/shorts";
+import { LatestShorts } from "@/components/home/LatestShorts";
 
 export default async function HomePage() {
   const latestVideoResult = await getLatestVideo();
@@ -17,68 +21,27 @@ export default async function HomePage() {
     ? latestVideoResult.video
     : null;
 
+  const latestShortsResult = await getLatestShorts();
+  const latestShorts = latestShortsResult.success
+    ? latestShortsResult.shorts
+    : null;
+
   return (
     <>
       {/* Desktop View */}
       <div className="hidden md:block h-screen bg-black text-white pt-16 overflow-hidden">
-        <div className="container mx-auto px-4 py-6 h-full transition-all duration-300">
+        <div className="container mx-auto p-4 h-full transition-all duration-300">
           <div className="flex gap-6 h-full transition-all duration-300">
-            {/* Left Section: Newest Video + Trending (6 units) */}
-            <div className="flex-6 flex flex-col gap-4">
-              {latestVideo ? (
-                <>
-                  {/* Video Title */}
-                  <div className="flex flex-row gap-2 items-baseline">
-                    <p className="text-2xl font-bold text-purple-400">
-                      Newest video -
-                    </p>
-                    <p className="text-xl font-medium text-white truncate">
-                      {latestVideo.title}
-                    </p>
-                  </div>
-
-                  {/* Newest Video with Gradient Border */}
-                  <Link href={`/video/${latestVideo.id}`}>
-                    <div className="dark-gradient rounded-lg p-[3px] transition-all duration-300">
-                      <div className="relative aspect-video bg-black rounded-lg overflow-hidden group cursor-pointer transition-all duration-300">
-                        <img
-                          src={getStreamThumbnailUrl(latestVideo.streamUid)}
-                          alt={latestVideo.title}
-                          className="w-full h-full object-cover group-hover:brightness-110 transition-all duration-300 relative z-10"
-                        />
-                        <div className="absolute bottom-3 right-3 z-20 bg-black/80 px-2 py-1 rounded text-xs text-white">
-                          {formatDuration(latestVideo.duration)}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-
-                  <div className="flex items-center gap-3 text-sm text-gray-400">
-                    <span>{formatViewCount(latestVideo.viewCount)} views</span>
-                    <span>•</span>
-                    <span>{formatRelativeTime(latestVideo.createdAt)}</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex flex-row gap-2 items-baseline">
-                    <p className="text-2xl font-bold text-green-400">
-                      Newest video:
-                    </p>
-                    <p className="text-xl font-medium text-white/60">
-                      No videos yet
-                    </p>
-                  </div>
-                  <div className="aspect-video bg-white/5 rounded-lg border-2 border-gray-700 flex items-center justify-center">
-                    <span className="text-white/40">
-                      No videos uploaded yet
-                    </span>
-                  </div>
-                </>
-              )}
-
+            {/* Left Section: Trending (1 units) */}
+            <div className="flex-2 flex flex-col">
               {/* Trending Grid with Virtualization */}
               <TrendingGrid />
+            </div>
+
+            {/* Middle Section: Newest Video (5 units) */}
+            <div className="flex-4 flex flex-col gap-4">
+              <LatestVideo latestVideo={latestVideo as Video} />
+              <LatestShorts shorts={latestShorts as Video[]} />
             </div>
 
             {/* Right Section: Community Feed (4 units) */}

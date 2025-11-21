@@ -15,16 +15,16 @@ export const TrendingGrid = () => {
   });
 
   return (
-    <div className="flex flex-col gap-2 flex-1 overflow-hidden transition-all duration-300">
-      <h3 className="text-xl font-semibold text-orange-400">🔥Trendings</h3>
+    <div className="flex flex-col flex-1 overflow-hidden transition-all duration-300">
+      <h2 className="text-2xl font-semibold text-orange-400 text-center mb-4">
+        🔥Trendings
+      </h2>
+
       <div
-        className="flex-1 overflow-y-auto min-h-0 pr-2 [&::-webkit-scrollbar]:w-1
-  [&::-webkit-scrollbar-track]:rounded-full
-  [&::-webkit-scrollbar-track]:bg-transparent
-  [&::-webkit-scrollbar-thumb]:rounded-full
-  [&::-webkit-scrollbar-thumb]:bg-orange-200"
+        className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:w-0
+ "
       >
-        <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-2 transition-all duration-300">
+        <div className="grid grid-cols-1 gap-2 transition-all duration-300">
           {items.map((item) => (
             <div
               key={item.id}

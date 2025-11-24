@@ -39,7 +39,7 @@ export default async function VideoPage({ params }: Props) {
         {/* Video container */}
         <div
           className={`flex-col flex gap-2 ${
-            isNormal ? "flex-1 " : "h-[60%]"
+            isNormal ? "flex-none lg:flex-1" : "h-[60%]"
           } lg:h-full`}
         >
           <div className={`justify-center ${isNormal ? "" : "h-[80%] flex"}`}>
@@ -54,7 +54,7 @@ export default async function VideoPage({ params }: Props) {
         </div>
 
         {/* Comment section */}
-        <div className="flex min-h-0 w-full lg:w-[40%]">
+        <div className="flex flex-1 w-full lg:w-[40%] lg:flex-none">
           <CommentSection videoId={video.id} />
         </div>
       </div>

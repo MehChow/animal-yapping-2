@@ -16,14 +16,7 @@ export const TrendingGrid = () => {
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden transition-all duration-300">
-      <h2 className="text-2xl font-semibold text-orange-400 text-center mb-4">
-        🔥Trendings
-      </h2>
-
-      <div
-        className="flex-1 overflow-y-auto min-h-0 [&::-webkit-scrollbar]:w-0
- "
-      >
+      <div className="flex-1 overflow-y-auto min-h-0 no-scrollbar">
         <div className="grid grid-cols-1 gap-2 transition-all duration-300">
           {items.map((item) => (
             <div

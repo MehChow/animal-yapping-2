@@ -1,63 +1,63 @@
-import { TrendingGrid } from "@/components/home/TrendingGrid";
-import { CommunityFeed } from "@/components/home/CommunityFeed";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getLatestVideo } from "@/app/actions/home";
-import { LatestVideo } from "@/components/home/LatestVideo";
-import { Video } from "@/types/video";
-import { getLatestShorts } from "./actions/shorts";
-import { LatestShorts } from "@/components/home/LatestShorts";
-import { Separator } from "@radix-ui/react-separator";
+import { getLatestVideo } from "@/lib/data/video";
+import { Eye } from "lucide-react";
+import Image from "next/image";
 
 export default async function HomePage() {
-  const latestVideoResult = await getLatestVideo();
-  const latestVideo = latestVideoResult.success
-    ? latestVideoResult.video
-    : null;
+  const latestVideo = await getLatestVideo();
 
-  const latestShortsResult = await getLatestShorts();
-  const latestShorts = latestShortsResult.success
-    ? latestShortsResult.shorts
-    : null;
+  if (!latestVideo.success) {
+    return <div>Error: {latestVideo.error}</div>;
+  }
+
+  const { video } = latestVideo;
+  console.log(video);
 
   return (
-    <>
-      {/* Desktop View */}
-      <div className="block h-screen bg-black text-white pt-16 overflow-hidden">
-        <div className="lg:container mx-auto p-4 h-full transition-all duration-300">
-          <div className="flex gap-6 h-full transition-all duration-300">
-            {/* Left Section: Trending (1 units) */}
-            <div className="flex-2 flex flex-col">
-              <h2 className="text-2xl font-semibold text-orange-400 text-center mb-4">
-                🔥Trendings
-              </h2>
-              <TrendingGrid />
-            </div>
+    <div className="flex flex-col h-dvh bg-black text-white pt-18 items-center p-3 lg:grid lg:grid-cols-10">
+      {/* Newest video section*/}
+      <section className="w-full border-2 border-green-500 flex flex-col items-center justify-center">
+        {/* Video data */}
+        <div className="aspect-video w-full bg-green-300 rounded-xl flex items-center justify-center relative">
+          {/* Top full width overlay with text */}
+          <div className="absolute w-full h-12 md:h-16 bg-linear-to-t from-transparent to-black/50 top-0 transition-all duration-300">
+            <p className="text-white text-lg md:text-2xl font-bold pl-3 pt-3 md:pl-4 md:pt-4 transition-all duration-300">
+              Newest Video
+            </p>
+          </div>
 
-            {/* Middle Section: Newest Video + Shorts (5 units) */}
-            <div className="flex-4 flex flex-col gap-4">
-              {/* Video*/}
-              <h2 className="text-2xl font-semibold text-center text-green-300">
-                Newest
-              </h2>
-              <LatestVideo latestVideo={latestVideo as Video} />
-
-              {/* Shorts */}
-              <p className="text-2xl font-semibold text-purple-300 text-center">
-                Shorts
-              </p>
-              <LatestShorts shorts={latestShorts as Video[]} />
-            </div>
-
-            {/* Right Section: Community Feed (4 units) */}
-            <div className="flex-4 flex-col hidden lg:flex">
-              <h2 className="text-2xl font-semibold text-blue-400 text-center mb-4">
-                💬Bullsheet
-              </h2>
-              <CommunityFeed />
-            </div>
+          {/* Duration */}
+          <div className="absolute bottom-1 right-1 p-2 bg-black/50 rounded-xl">
+            <p className="text-white text-xs md:text-sm">15:36</p>
           </div>
         </div>
-      </div>
-    </>
+
+        {/* Uploader & metadata */}
+        <div className="w-full flex flex-row py-1">
+          {/* Uploader icon */}
+          <div className="w-10 h-10 md:w-16 md:h-16 rounded-full m-1 relative transition-all duration-300">
+            <Image
+              src="/default_icon.png"
+              alt="Uploader"
+              fill
+              className="object-cover rounded-full"
+            />
+          </div>
+
+          {/* Uploader name & uploaded at */}
+          <div className="flex flex-col justify-center items-start px-2">
+            <p className="text-white md:text-lg">Meh Chow</p>
+            <p className="text-white text-xs md:text-sm">2 hours ago</p>
+          </div>
+
+          {/* View count */}
+          <div className="flex flex-row justify-center items-start pt-1 px-2 ml-auto gap-1">
+            <Eye className="size-4 md:size-5 transition-all duration-300" />
+            <p className="text-white text-xs md:text-sm transition-all duration-300">
+              100
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }

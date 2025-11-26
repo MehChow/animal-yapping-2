@@ -1,5 +1,5 @@
 import MasonryComponent from "@/components/shorts/Masonry-grid";
-import { getLatestShorts } from "../actions/shorts";
+import { getLatestShorts } from "@/lib/data/video";
 import { Video } from "@/types/video";
 
 export default async function ShortsPage() {

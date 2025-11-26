@@ -1,4 +1,4 @@
-import { getStreamThumbnailUrl } from "@/lib/stream-utils";
+import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
 import Image from "next/image";
 import Link from "next/link";
@@ -43,7 +43,7 @@ export const LatestShorts = ({ shorts }: LatestShortsProps) => {
                   className="relative block h-[250px] sm:h-[280px] md:h-[300px] aspect-9/16 rounded-xl overflow-hidden bg-white/5 cursor-pointer transition-all duration-300"
                 >
                   <Image
-                    src={getStreamThumbnailUrl(short.streamUid)}
+                    src={getThumbnailUrl(short)}
                     alt={short.title}
                     fill
                     className="object-cover"

@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "customer-t8f0evtjgdy9lgms.cloudflarestream.com",
       },
+      {
+        protocol: "https",
+        hostname: "thumbnails.animal-yapping.com",
+      },
     ],
   },
 };

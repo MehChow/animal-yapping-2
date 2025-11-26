@@ -2,18 +2,7 @@
  * Common video utilities
  */
 
-export const VIDEO_CONSTRAINTS = {
-  MAX_SIZE: 200 * 1024 * 1024, // 200MB
-  ALLOWED_TYPES: ["video/mp4", "video/quicktime", "video/webm"],
-  MIN_DURATION_FOR_THUMBNAILS: 3, // seconds
-  SHORTS_MAX_DURATION: 60, // seconds
-  ASPECT_RATIO_TOLERANCE: 0.1,
-} as const;
-
-export const ASPECT_RATIOS = {
-  NORMAL: 16 / 9,
-  SHORTS: 9 / 16,
-} as const;
+import { ASPECT_RATIOS, VIDEO_CONSTRAINTS } from "@/lib/constants";
 
 export type VideoType = "Normal" | "Shorts";
 
@@ -85,10 +74,10 @@ export const classifyVideoType = (
   const { aspectRatio, duration, width, height } = metadata;
 
   const is16By9 =
-    Math.abs(aspectRatio - ASPECT_RATIOS.NORMAL) <
+    Math.abs(aspectRatio - ASPECT_RATIOS.Normal) <
     VIDEO_CONSTRAINTS.ASPECT_RATIO_TOLERANCE;
   const is9By16 =
-    Math.abs(aspectRatio - ASPECT_RATIOS.SHORTS) <
+    Math.abs(aspectRatio - ASPECT_RATIOS.Shorts) <
     VIDEO_CONSTRAINTS.ASPECT_RATIO_TOLERANCE;
 
   if (is16By9) {

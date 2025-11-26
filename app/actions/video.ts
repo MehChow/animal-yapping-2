@@ -14,6 +14,10 @@ type UploadVideoInput = {
   description?: string;
   tags: string[];
   duration?: number; // Video duration
+  // Thumbnail fields
+  thumbnailSource: "stream" | "custom";
+  thumbnailTimestamp?: number; // Timestamp in seconds (for stream source)
+  customThumbnailKey?: string; // R2 object key (for custom source)
 };
 
 export const uploadVideo = async (input: UploadVideoInput) => {
@@ -29,6 +33,9 @@ export const uploadVideo = async (input: UploadVideoInput) => {
       description,
       tags,
       duration,
+      thumbnailSource,
+      thumbnailTimestamp,
+      customThumbnailKey,
     } = input;
 
     // Validate required fields
@@ -51,6 +58,10 @@ export const uploadVideo = async (input: UploadVideoInput) => {
         duration: duration || null,
         status: "ready",
         uploadedById: user.id,
+        // Thumbnail fields
+        thumbnailSource: thumbnailSource || "stream",
+        thumbnailTimestamp: thumbnailTimestamp ?? null,
+        customThumbnailKey: customThumbnailKey || null,
       },
     });
 

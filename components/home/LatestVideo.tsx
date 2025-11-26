@@ -1,4 +1,4 @@
-import { getStreamThumbnailUrl } from "@/lib/stream-utils";
+import { getThumbnailUrl } from "@/lib/stream-utils";
 import { formatDuration, formatRelativeTime } from "@/lib/format-utils";
 import { Eye } from "lucide-react";
 import { Video } from "@/types/video";
@@ -34,7 +34,7 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
           className="cursor-pointer hover:opacity-90 transition-all duration-300"
         >
           <Image
-            src={getStreamThumbnailUrl(video.streamUid)}
+            src={getThumbnailUrl(video)}
             alt={video.title}
             fill
             className="object-cover rounded-xl"

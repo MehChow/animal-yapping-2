@@ -1,4 +1,4 @@
-import { getStreamThumbnailUrl } from "@/lib/stream-utils";
+import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
 import Image from "next/image";
 
@@ -23,7 +23,7 @@ export const TrendingVideos = ({ trendingVideos }: TrendingVideosProps) => {
             className="aspect-video relative rounded-lg border-0 overflow-hidden flex items-center justify-center cursor-pointer"
           >
             <Image
-              src={getStreamThumbnailUrl(video.streamUid)}
+              src={getThumbnailUrl(video)}
               alt={video.title}
               fill
               className="object-cover"

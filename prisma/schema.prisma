@@ -112,6 +112,11 @@ model Video {
   duration      Float?    // Video duration in seconds
   status        String    @default("ready") // "processing", "ready", "error"
   
+  // THUMBNAIL FIELDS
+  thumbnailSource       String    @default("stream") // "stream" or "custom"
+  thumbnailTimestamp    Float?    // Timestamp in seconds (for stream source)
+  customThumbnailKey    String?   // R2 object key (for custom source)
+  
   viewCount     Int       @default(0)
   uploadedById  String
   uploadedBy    User      @relation(fields: [uploadedById], references: [id], onDelete: Cascade)

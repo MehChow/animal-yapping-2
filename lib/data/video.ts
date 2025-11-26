@@ -103,3 +103,36 @@ export const getLatestShorts = async (limit: number = 10) => {
     };
   }
 };
+
+export const getTrendingVideos = async (limit: number = 10) => {
+  try {
+    const trendingVideos = await prisma.video.findMany({
+      where: {
+        videoType: "Normal",
+      },
+      take: limit,
+      orderBy: {
+        viewCount: "desc",
+      },
+    });
+
+    return {
+      success: true,
+      trendingVideos: trendingVideos.map((video) => ({
+        ...video,
+        createdAt: video.createdAt.toISOString(),
+        updatedAt: video.updatedAt.toISOString(),
+      })),
+    };
+  } catch (error) {
+    console.error("Error fetching trending videos:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch trending videos",
+      trendingVideos: [],
+    };
+  }
+};

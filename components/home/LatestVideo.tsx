@@ -15,7 +15,7 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-white text-2xl font-bold text-left w-full py-1">
+      <h2 className="text-white text-2xl font-bold text-left w-full">
         Latest Video
       </h2>
 

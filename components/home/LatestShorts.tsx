@@ -1,8 +1,7 @@
-"use client";
-
 import { getStreamThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Carousel,
   CarouselContent,
@@ -10,7 +9,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useRouter } from "next/navigation";
 
 interface LatestShortsProps {
   shorts: Video[];
@@ -18,49 +16,68 @@ interface LatestShortsProps {
 
 export const LatestShorts = ({ shorts }: LatestShortsProps) => {
   if (!shorts || shorts.length === 0) return null;
-  const router = useRouter();
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
-      <div className="flex-1 min-h-0 relative group">
+    <>
+      {/* Title */}
+      <h2 className="text-white text-2xl font-bold text-left w-full py-1">
+        Shorts
+      </h2>
+
+      <div className="w-full relative">
         <Carousel
           opts={{
             align: "start",
             loop: false,
+            dragFree: true,
           }}
-          // Ensure the viewport (direct child div) takes full height
-          className="w-full h-full [&>div]:h-full"
+          className="w-full"
         >
-          {/* Ensure the track takes full height */}
-          <CarouselContent className="-ml-2 md:-ml-4 h-full">
+          <CarouselContent className="-ml-2 md:-ml-3">
             {shorts.map((short) => (
               <CarouselItem
-                onClick={() => router.push(`/video/${short.id}`)}
                 key={short.id}
-                // Remove fixed basis, allow auto width based on aspect-ratio content
-                className="pl-2 md:pl-4 basis-auto h-full cursor-pointer"
+                className="pl-2 md:pl-3 basis-auto hover:opacity-90 transition-all duration-300"
               >
-                <div className="relative h-full aspect-9/16 rounded-xl overflow-hidden border border-white/10 bg-white/5">
+                <Link
+                  href={`/video/${short.id}`}
+                  aria-label={`Watch short: ${short.title}`}
+                  className="relative block h-[250px] sm:h-[280px] md:h-[300px] aspect-9/16 rounded-xl overflow-hidden bg-white/5 cursor-pointer transition-all duration-300"
+                >
                   <Image
                     src={getStreamThumbnailUrl(short.streamUid)}
                     alt={short.title}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 768px) 33vw, (max-width: 1200px) 20vw, 15vw"
+                    sizes="150px"
                   />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity flex items-end p-2">
-                    <p className="text-white font-medium truncate w-full pb-2 pl-2">
-                      {short.title}
-                    </p>
+
+                  {/* Title overlay*/}
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent flex items-end p-2">
+                    <div className="flex flex-row items-center gap-2 w-full">
+                      <div className="w-8 h-8 shrink-0 rounded-full relative overflow-hidden">
+                        <Image
+                          src="/default_icon.png"
+                          alt="Uploader"
+                          fill
+                          className="object-cover"
+                          sizes="32px"
+                        />
+                      </div>
+                      <p className="text-white text-xs font-medium line-clamp-2 w-full">
+                        {short.title}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </Link>
               </CarouselItem>
             ))}
           </CarouselContent>
+
           <CarouselPrevious className="left-2 bg-black/50 hover:bg-black/70 border-none text-white h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0" />
           <CarouselNext className="right-2 bg-black/50 hover:bg-black/70 border-none text-white h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0" />
         </Carousel>
       </div>
-    </div>
+    </>
   );
 };

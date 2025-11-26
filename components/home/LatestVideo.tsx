@@ -10,8 +10,15 @@ interface LatestVideoProps {
 }
 
 export const LatestVideo = ({ video }: LatestVideoProps) => {
+  if (!video) return null;
+
   return (
     <>
+      {/* Title */}
+      <h2 className="text-white text-2xl font-bold text-left w-full py-1">
+        Latest Video
+      </h2>
+
       {/* Video data */}
       <div className="aspect-video w-full rounded-xl flex items-center justify-center relative">
         {/* Top full width overlay with text */}

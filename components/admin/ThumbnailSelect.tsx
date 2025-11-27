@@ -134,7 +134,7 @@ const FramePreview: React.FC<FramePreviewProps> = ({
 }) => (
   <div className="flex flex-col items-center">
     <div
-      className={`relative overflow-hidden rounded-xl border-2 border-blue-500/50 bg-black/50 ${
+      className={`relative overflow-hidden rounded-xl border-2 border-white/10 bg-black/50 ${
         isShorts ? "w-48 aspect-9/16" : "w-full max-w-lg aspect-video"
       }`}
     >
@@ -224,35 +224,30 @@ const TimelineSlider: React.FC<TimelineSliderProps> = ({
       isCustomSelected ? "opacity-30 pointer-events-none" : "opacity-100"
     }`}
   >
-    <div className="px-2">
-      <Slider
-        value={[currentTimestamp]}
-        onValueChange={onSliderChange}
-        max={videoDuration}
-        step={0.1}
-        disabled={isCustomSelected || isPublishing}
-        className="w-full [&_[data-slot=slider-track]]:h-3 [&_[data-slot=slider-track]]:bg-red-900/50 [&_[data-slot=slider-range]]:bg-red-500 [&_[data-slot=slider-thumb]]:size-5 [&_[data-slot=slider-thumb]]:border-red-500"
-      />
-    </div>
+    <Slider
+      value={[currentTimestamp]}
+      onValueChange={onSliderChange}
+      max={videoDuration}
+      step={0.1}
+      disabled={isCustomSelected || isPublishing}
+      className="w-full **:data-[slot=slider-track]:rounded-sm **:data-[slot=slider-track]:h-8 
+              **:data-[slot=slider-track]:bg-white/20 **:data-[slot=slider-range]:bg-white/20 
+              **:data-[slot=slider-thumb]:h-12 **:data-[slot=slider-thumb]:w-1 **:data-[slot=slider-thumb]:hover:ring-1"
+    />
 
     {/* Timestamp display and input */}
-    <div className="flex items-center justify-center gap-4">
-      <span className="text-red-400 font-mono text-sm">
-        {formatTimestamp(currentTimestamp)}
-      </span>
-      <div className="relative">
-        <Input
-          type="text"
-          placeholder="MM:SS"
-          value={timestampInputValue}
-          onChange={onTimestampInputChange}
-          onBlur={onTimestampBlur}
-          onKeyDown={onTimestampKeyDown}
-          disabled={isCustomSelected || isPublishing}
-          className="w-28 text-center bg-transparent border-purple-500/50 text-white placeholder:text-purple-300/50 focus:border-purple-400"
-          aria-label="Enter timestamp"
-        />
-      </div>
+    <div className="w-full flex items-center justify-center">
+      <Input
+        type="text"
+        placeholder="MM:SS"
+        value={timestampInputValue}
+        onChange={onTimestampInputChange}
+        onBlur={onTimestampBlur}
+        onKeyDown={onTimestampKeyDown}
+        disabled={isCustomSelected || isPublishing}
+        className="w-28 text-center rounded-2xl bg-white/10 text-white/70 placeholder:text-purple-300/50 border-none focus:text-white focus-visible:ring-0"
+        aria-label="Enter timestamp"
+      />
     </div>
   </div>
 );
@@ -340,7 +335,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     <Button
       onClick={onPublish}
       disabled={isPublishing}
-      className="bg-green-600 text-white hover:bg-green-700 border border-green-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      className="bg-green-600 text-white hover:bg-green-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {isPublishing && <Spinner />}
       {isPublishing ? "Publishing..." : "Upload"}

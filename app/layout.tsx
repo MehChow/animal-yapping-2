@@ -29,7 +29,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${tektur.className} no-scrollbar`}>
-      <body className="antialiased">
+      <body className="antialiased bg-black">
         <Header />
         {children}
         <Toaster />

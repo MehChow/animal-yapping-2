@@ -8,12 +8,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { GameTypeSelect } from "./GameTypeSelect";
 import { VideoUpload } from "./VideoUpload";
 import { VideoMetadata } from "./VideoMetadata";
 import { ThumbnailSelect } from "./ThumbnailSelect";
 import { Button } from "@/components/ui/button";
-import { PlusIcon, PartyPopperIcon } from "lucide-react";
+import { PlusIcon, PartyPopperIcon, AlertTriangleIcon } from "lucide-react";
 import { useUploadVideo } from "@/hooks/useUploadVideo";
 
 export type UploadData = {
@@ -33,8 +43,11 @@ export const AddVideoDialog = () => {
     currentStep,
     showSuccessDialog,
     setShowSuccessDialog,
+    showCloseWarning,
     uploadData,
     handleOpenChange,
+    handleConfirmClose,
+    handleCancelClose,
     handlePublishSuccess,
     handleBackToAdmin,
     handleViewVideo,
@@ -91,6 +104,41 @@ export const AddVideoDialog = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Close Warning Dialog */}
+      <AlertDialog open={showCloseWarning} onOpenChange={handleCancelClose}>
+        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
+          <AlertDialogHeader>
+            <div className="flex items-center justify-center mb-2">
+              <div className="rounded-full bg-amber-500/20 p-3">
+                <AlertTriangleIcon className="size-6 text-amber-500" />
+              </div>
+            </div>
+            <AlertDialogTitle className="text-center">
+              Discard Upload Progress?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-white/60">
+              You have unsaved progress in your video upload. If you close this
+              dialog, all your data will be lost and you&apos;ll need to start
+              over.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
+            <AlertDialogCancel
+              onClick={handleCancelClose}
+              className="flex-1 border-white/20 bg-transparent text-white hover:bg-white/10 cursor-pointer"
+            >
+              Continue Editing
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmClose}
+              className="flex-1 bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+            >
+              Discard & Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>

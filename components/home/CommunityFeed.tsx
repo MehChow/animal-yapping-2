@@ -16,8 +16,13 @@ export const CommunityFeed = () => {
   });
 
   return (
-    <div className="flex flex-col h-full transition-all duration-300 overflow-hidden">
-      <div className="flex-1 overflow-y-auto space-y-3 transition-all duration-300 no-scrollbar">
+    <>
+      {/* Title */}
+      <h2 className="text-purple-300 text-2xl font-bold text-center w-full">
+        📃Bullsheet
+      </h2>
+
+      <div className="flex-1 w-full overflow-y-auto space-y-3 transition-all duration-300 no-scrollbar">
         {items.map((item) => (
           <div
             key={item.id}
@@ -59,6 +64,6 @@ export const CommunityFeed = () => {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };

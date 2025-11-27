@@ -20,7 +20,9 @@ export const LatestShorts = ({ shorts }: LatestShortsProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-white text-2xl font-bold text-left w-full">Shorts</h2>
+      <h2 className="text-blue-300 text-2xl font-bold text-center w-full">
+        🕗Shorts
+      </h2>
 
       <div className="w-full relative">
         <Carousel

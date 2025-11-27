@@ -15,31 +15,33 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-white text-2xl font-bold text-left w-full">
-        Latest Video
+      <h2 className="text-green-300 text-2xl font-bold text-center w-full">
+        ✨Latest Video
       </h2>
 
       {/* Video data */}
-      <div className="aspect-video w-full rounded-xl flex items-center justify-center relative">
-        {/* Top full width overlay with text */}
-        <div className="absolute w-full h-24 md:h-32 bg-linear-to-t from-transparent to-black/60 top-0 transition-all duration-300 z-1 pointer-events-none">
-          <p className="text-white text-lg md:text-2xl font-bold pl-3 pt-3 md:pl-4 md:pt-4 transition-all duration-300">
-            {video.title}
-          </p>
-        </div>
-
+      <div className="aspect-video w-full rounded-xl flex items-center justify-center relative dark-gradient p-1">
         {/* Thumbnail */}
-        <Link
-          href={`/video/${video.id}`}
-          className="cursor-pointer hover:opacity-90 transition-all duration-300"
-        >
-          <Image
-            src={getThumbnailUrl(video)}
-            alt={video.title}
-            fill
-            className="object-cover rounded-xl"
-          />
-        </Link>
+        <div className="gradient-content w-full h-full relative">
+          {/* Top full width overlay with text */}
+          <div className="absolute w-full h-24 md:h-32 rounded-t-xl bg-linear-to-t from-transparent to-black/60 top-0 transition-all duration-300 z-10 pointer-events-none">
+            <p className="text-white text-lg md:text-2xl font-bold pl-3 pt-3 md:pl-4 md:pt-4 transition-all duration-300">
+              {video.title}
+            </p>
+          </div>
+
+          <Link
+            href={`/video/${video.id}`}
+            className="cursor-pointer hover:opacity-90 transition-all duration-300"
+          >
+            <Image
+              src={getThumbnailUrl(video)}
+              alt={video.title}
+              fill
+              className="object-cover rounded-xl"
+            />
+          </Link>
+        </div>
 
         {/* Duration */}
         <div className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-xl pointer-events-none">

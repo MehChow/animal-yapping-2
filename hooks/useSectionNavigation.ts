@@ -13,13 +13,13 @@ export const SECTIONS: Section[] = [
   {
     id: "newest-video",
     label: "Home",
-    icon: "🏠",
+    icon: "✨",
     color: "bg-green-600 hover:bg-green-700",
   },
   {
     id: "shorts",
     label: "Shorts",
-    icon: "🎬",
+    icon: "🕗",
     color: "bg-blue-600 hover:bg-blue-700",
   },
   {

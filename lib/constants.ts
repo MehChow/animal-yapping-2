@@ -10,6 +10,20 @@ export const THUMBNAIL_CONSTRAINTS = {
   ASPECT_RATIO_TOLERANCE: 0.15,
 } as const;
 
+export const POST_IMAGE_CONSTRAINTS = {
+  MAX_SIZE: 10 * 1024 * 1024, // 10MB per image
+  MAX_IMAGES: 5,
+  ALLOWED_TYPES: [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/heic",
+    "image/webp",
+    "image/gif",
+  ],
+  MAX_CONTENT_LENGTH: 1000,
+} as const;
+
 export const VIDEO_CONSTRAINTS = {
   MAX_SIZE: 200 * 1024 * 1024, // 200MB
   ALLOWED_TYPES: ["video/mp4", "video/quicktime", "video/webm"],

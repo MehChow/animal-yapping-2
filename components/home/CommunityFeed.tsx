@@ -18,7 +18,7 @@ export const CommunityFeed = () => {
   if (isLoading) {
     return (
       <>
-        <h2 className="text-purple-300 text-2xl font-bold text-center w-full">
+        <h2 className="text-purple-300 text-3xl font-bold text-center w-full">
           📃Bullsheet
         </h2>
         <div className="flex items-center justify-center py-10">
@@ -31,7 +31,7 @@ export const CommunityFeed = () => {
   if (posts.length === 0) {
     return (
       <>
-        <h2 className="text-purple-300 text-2xl font-bold text-center w-full">
+        <h2 className="text-purple-300 text-3xl font-bold text-center w-full">
           📃Bullsheet
         </h2>
         <div className="text-center py-10 text-gray-400">
@@ -43,7 +43,7 @@ export const CommunityFeed = () => {
 
   return (
     <>
-      <h2 className="text-purple-300 text-2xl font-bold text-center w-full">
+      <h2 className="text-purple-300 text-3xl font-bold text-center w-full">
         📃Bullsheet
       </h2>
 

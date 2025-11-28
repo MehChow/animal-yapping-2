@@ -15,7 +15,7 @@ export const TrendingVideos = ({ trendingVideos }: TrendingVideosProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-orange-300 text-2xl font-bold text-center w-full">
+      <h2 className="text-orange-300 text-3xl font-bold text-center w-full">
         🔥Trending
       </h2>
 

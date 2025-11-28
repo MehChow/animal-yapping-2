@@ -20,7 +20,7 @@ export const LatestShorts = ({ shorts }: LatestShortsProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-blue-300 text-2xl font-bold text-center w-full">
+      <h2 className="text-blue-300 text-3xl font-bold text-center w-full">
         🕗Shorts
       </h2>
 

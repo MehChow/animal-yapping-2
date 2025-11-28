@@ -21,6 +21,11 @@ interface PostCardProps {
   onDelete: (postId: string) => void;
 }
 
+const getImageUrl = (imageKey: string): string => {
+  const publicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+  return publicUrl ? `${publicUrl}/${imageKey}` : "";
+};
+
 export const PostCard = ({ post, onLikeToggle, onDelete }: PostCardProps) => {
   const {
     isLiking,
@@ -40,7 +45,7 @@ export const PostCard = ({ post, onLikeToggle, onDelete }: PostCardProps) => {
         {/* User Image */}
         <div className="w-10 h-10 rounded-full relative overflow-hidden shrink-0">
           <Image
-            src={post.author.image || "/default_icon.png"}
+            src={getImageUrl(post.author.image || "")}
             alt={post.author.name || "User"}
             fill
             className="object-cover"

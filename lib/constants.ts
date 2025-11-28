@@ -36,3 +36,14 @@ export const ASPECT_RATIOS = {
   Normal: 16 / 9,
   Shorts: 9 / 16,
 } as const;
+
+export const USER_ICON_CONSTRAINTS = {
+  MAX_SIZE: 5 * 1024 * 1024, // 5MB
+  ALLOWED_TYPES: [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/heic",
+    "image/webp",
+  ],
+} as const;

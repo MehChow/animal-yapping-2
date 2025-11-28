@@ -15,7 +15,7 @@ export const TrendingVideos = ({ trendingVideos }: TrendingVideosProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-orange-300 text-3xl font-bold text-center w-full">
+      <h2 className="text-orange-300 text-[5vw] font-bold text-center w-full">
         🔥Trending
       </h2>
 
@@ -77,7 +77,7 @@ const VideoCard = ({ video }: { video: Video }) => {
         {/* Title & uploaded at */}
         <div className="flex flex-col gap-1 flex-1 min-w-0 transition-all duration-300">
           <p
-            className="text-white font-bold text-left hover:underline"
+            className="text-white font-bold text-left line-clamp-2"
             style={{ fontSize: "clamp(0.75rem, 2.5vw, 0.875rem)" }}
           >
             {video.title}

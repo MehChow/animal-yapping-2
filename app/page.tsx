@@ -48,7 +48,10 @@ export default async function HomePage() {
       {/* Section Navigation - appears after scrolling 1/3 of page */}
       <SectionNavigation />
 
-      <div className="flex flex-col min-h-dvh text-white pt-20 items-center p-4 lg:grid lg:grid-cols-10">
+      <div
+        className="flex flex-col min-h-dvh text-white pt-20 items-center p-4 
+              md:grid md:grid-cols-10"
+      >
         {/* Newest video section*/}
         <section
           id="newest-video"

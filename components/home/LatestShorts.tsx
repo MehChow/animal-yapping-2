@@ -1,7 +1,11 @@
+"use client";
+
 import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Carousel,
   CarouselContent,
@@ -15,12 +19,36 @@ interface LatestShortsProps {
 }
 
 export const LatestShorts = ({ shorts }: LatestShortsProps) => {
+  const [loadingImages, setLoadingImages] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (shorts) {
+      setLoadingImages(new Set(shorts.map((short) => short.id)));
+    }
+  }, [shorts]);
+
   if (!shorts || shorts.length === 0) return null;
+
+  const handleImageLoad = (videoId: string) => {
+    setLoadingImages((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(videoId);
+      return newSet;
+    });
+  };
+
+  const handleImageError = (videoId: string) => {
+    setLoadingImages((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(videoId);
+      return newSet;
+    });
+  };
 
   return (
     <>
       {/* Title */}
-      <h2 className="text-blue-300 text-3xl font-bold text-center w-full">
+      <h2 className="text-blue-300 text-[5vw] font-bold text-center w-full">
         🕗Shorts
       </h2>
 
@@ -31,25 +59,30 @@ export const LatestShorts = ({ shorts }: LatestShortsProps) => {
             loop: false,
             dragFree: true,
           }}
-          className="w-full"
+          className="w-full group"
         >
-          <CarouselContent className="-ml-2 md:-ml-3">
+          <CarouselContent className="-ml-2">
             {shorts.map((short) => (
               <CarouselItem
                 key={short.id}
-                className="pl-2 md:pl-3 basis-auto hover:opacity-90 transition-all duration-300"
+                className="pl-2 basis-auto hover:opacity-90 transition-all duration-300"
               >
                 <Link
                   href={`/video/${short.id}`}
                   aria-label={`Watch short: ${short.title}`}
-                  className="relative block h-[250px] sm:h-[280px] md:h-[300px] aspect-9/16 rounded-xl overflow-hidden bg-white/5 cursor-pointer transition-all duration-300"
+                  className="relative block h-[250px] sm:h-[280px] aspect-9/16 rounded-xl overflow-hidden bg-white/5 cursor-pointer transition-all duration-300"
                 >
+                  {loadingImages.has(short.id) && (
+                    <Skeleton className="absolute inset-0 w-full h-full bg-white/20" />
+                  )}
                   <Image
                     src={getThumbnailUrl(short)}
                     alt={short.title}
                     fill
                     className="object-cover"
                     sizes="150px"
+                    onLoad={() => handleImageLoad(short.id)}
+                    onError={() => handleImageError(short.id)}
                   />
 
                   {/* Title overlay*/}

@@ -30,10 +30,10 @@ import {
   FileTextIcon,
   CheckCircleIcon,
 } from "lucide-react";
-import { useAddPost, ImagePreview } from "@/hooks/useAddPost";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useRef } from "react";
+import { ImagePreview, useAddPost } from "@/hooks/useAddPost";
 
 const ImagePreviewItem = ({
   image,

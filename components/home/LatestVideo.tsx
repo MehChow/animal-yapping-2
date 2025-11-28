@@ -15,7 +15,7 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-green-300 text-3xl font-bold text-center w-full">
+      <h2 className="text-green-300 text-[5vw] font-bold text-center w-full">
         ✨Latest Video
       </h2>
 
@@ -24,8 +24,8 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
         {/* Thumbnail */}
         <div className="gradient-content w-full h-full relative">
           {/* Top full width overlay with text */}
-          <div className="absolute w-full h-24 md:h-32 rounded-t-xl bg-linear-to-t from-transparent to-black/60 top-0 transition-all duration-300 z-10 pointer-events-none">
-            <p className="text-white text-lg md:text-2xl font-bold pl-3 pt-3 md:pl-4 md:pt-4 transition-all duration-300">
+          <div className="absolute w-full h-24 rounded-t-xl bg-linear-to-t from-transparent to-black/60 top-0 transition-all duration-300 z-10 pointer-events-none">
+            <p className="text-white text-[3vw] font-bold pl-4 pt-3 transition-all duration-300">
               {video.title}
             </p>
           </div>
@@ -45,7 +45,7 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
 
         {/* Duration */}
         <div className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-xl pointer-events-none">
-          <p className="text-white text-xs md:text-sm transition-all duration-300 text-center min-w-8">
+          <p className="text-white text-xs transition-all duration-300 text-center min-w-8">
             {formatDuration(video.duration)}
           </p>
         </div>
@@ -54,7 +54,7 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
       {/* Uploader & metadata */}
       <div className="w-full flex flex-row py-1">
         {/* Uploader icon */}
-        <div className="w-10 h-10 md:w-16 md:h-16 rounded-full m-1 relative transition-all duration-300">
+        <div className="w-10 h-10 rounded-full m-1 relative transition-all duration-300">
           <Image
             src="/default_icon.png"
             alt="Uploader"
@@ -65,16 +65,16 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
 
         {/* Uploader name & uploaded at */}
         <div className="flex flex-col justify-center items-start px-2">
-          <p className="text-white md:text-lg">{video.uploadedBy.name}</p>
-          <p className="text-gray-400 text-xs md:text-sm">
+          <p className="text-white text-lg">{video.uploadedBy.name}</p>
+          <p className="text-gray-400 text-xs">
             {formatRelativeTime(video.createdAt)}
           </p>
         </div>
 
         {/* View count */}
         <div className="flex flex-row justify-center items-start pt-1 px-2 ml-auto gap-1">
-          <Eye className="text-gray-400 size-4 md:size-5 transition-all duration-300" />
-          <p className="text-gray-400 text-xs md:text-sm transition-all duration-300">
+          <Eye className="text-gray-400 size-4 transition-all duration-300" />
+          <p className="text-gray-400 text-xs transition-all duration-300">
             {video.viewCount}
           </p>
         </div>

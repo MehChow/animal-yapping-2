@@ -26,7 +26,7 @@ export const DeletePostDialog = ({
 }: DeletePostDialogProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-black border-white/20">
+      <AlertDialogContent className="bg-zinc-900 border-zinc-800">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-white text-lg font-bold">
             🗑️Delete Post
@@ -36,7 +36,7 @@ export const DeletePostDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="text-white cursor-pointer hover:bg-white/10">
+          <AlertDialogCancel className="text-white cursor-pointer hover:bg-white/10 border-0">
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction

@@ -153,18 +153,10 @@ export const AddVideoDialog = () => {
               Video Uploaded Successfully!
             </DialogTitle>
             <DialogDescription className="text-center text-white/60 pt-2">
-              Your video has been published and is now live. What would you like
-              to do next?
+              Your video has been published and is now live.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
-            <Button
-              onClick={handleBackToAdmin}
-              variant="outline"
-              className="flex-1 border-white/20 text-black bg-white hover:bg-gray-200 cursor-pointer"
-            >
-              Back to Admin Panel
-            </Button>
+          <DialogFooter className="w-[80%] mx-auto pt-4">
             <Button
               onClick={handleViewVideo}
               className="flex-1 bg-blue-400 text-white hover:bg-blue-500 cursor-pointer"

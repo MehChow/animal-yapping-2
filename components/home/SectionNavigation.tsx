@@ -11,7 +11,7 @@ export const SectionNavigation = () => {
   return (
     <div
       className={cn(
-        "fixed right-4 top-1/2 -translate-y-1/2 z-50",
+        "fixed right-4 top-1/2 -translate-y-1/2 z-50 lg:hidden",
         "flex flex-col gap-2 p-2 rounded-xl",
         "bg-white/20 backdrop-blur-sm",
         "transition-all duration-300 ease-out",

@@ -116,7 +116,11 @@ export async function Header() {
 
         {/* Auth Buttons (always visible) */}
         <div className="flex items-center">
-          {session?.user ? <AuthUserBlock /> : <GoogleLoginButton />}
+          {session?.user ? (
+            <AuthUserBlock user={session.user} />
+          ) : (
+            <GoogleLoginButton />
+          )}
         </div>
       </div>
     </header>

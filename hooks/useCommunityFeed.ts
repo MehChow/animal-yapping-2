@@ -10,6 +10,7 @@ interface UseCommunityFeedReturn {
   loadMoreRef: React.RefObject<HTMLDivElement | null>;
   handleLikeToggle: (postId: string) => void;
   handleDelete: (postId: string) => void;
+  refetch: () => void;
 }
 
 export const useCommunityFeed = (): UseCommunityFeedReturn => {
@@ -47,10 +48,28 @@ export const useCommunityFeed = (): UseCommunityFeedReturn => {
     }
   }, []);
 
+  const refetch = useCallback(() => {
+    fetchPosts(); // Refetch from the beginning
+  }, [fetchPosts]);
+
   // Initial fetch
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  // Listen for profile updates and refetch posts
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      // Refetch posts to get updated user images
+      refetch();
+    };
+
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
+    };
+  }, [refetch]);
 
   // Infinite scroll
   useEffect(() => {
@@ -86,5 +105,6 @@ export const useCommunityFeed = (): UseCommunityFeedReturn => {
     loadMoreRef,
     handleLikeToggle,
     handleDelete,
+    refetch,
   };
 };

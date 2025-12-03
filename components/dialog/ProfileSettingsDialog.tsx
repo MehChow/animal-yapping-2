@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { SettingsIcon, Loader2, PencilIcon, X } from "lucide-react";
+import { SettingsIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,13 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { useProfileSettingsDialog } from "@/hooks/useProfileSettingsDialog";
 import { cn } from "@/lib/utils";
-import { getUserIconUrl } from "@/utils/user-utils";
 import { DiscardProfileChangesDialog } from "./DiscardProfileChangesDialog";
 import { CropImageDialog } from "./CropImageDialog";
 import { Spinner } from "../ui/spinner";
+import { ProfileIconPreview } from "../ui/ProfileIconPreview";
 
 type ProfileSettingsDialogProps = {
   displayName: string;
@@ -93,37 +91,11 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
           <form onSubmit={onSubmit} className="space-y-6">
             <section className="gap-4 flex flex-col items-center">
               {/* Icon */}
-              <div
-                className="relative size-24 rounded-full border border-white/20 bg-white/10 
-                        flex items-center justify-center"
-              >
-                {previewUrl ? (
-                  <Image
-                    src={
-                      previewUrl.startsWith("data:")
-                        ? previewUrl
-                        : getUserIconUrl(previewUrl)
-                    }
-                    alt="Icon preview"
-                    fill
-                    className="object-cover rounded-full"
-                  />
-                ) : (
-                  <span className="text-lg font-semibold pointer-events-none">
-                    {initials}
-                  </span>
-                )}
-
-                {previewUrl && (
-                  <div
-                    className="absolute top-0 right-0 size-6 rounded-full bg-red-400 
-                      flex items-center justify-center cursor-pointer hover:bg-red-500 transition-colors"
-                    onClick={handleRemoveIcon}
-                  >
-                    <X className="size-4 text-white" />
-                  </div>
-                )}
-              </div>
+              <ProfileIconPreview
+                previewUrl={previewUrl}
+                initials={initials}
+                onRemove={handleRemoveIcon}
+              />
 
               {/* Upload Icon */}
               <input
@@ -149,10 +121,12 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
               </p>
             </section>
 
+            {/* Display name */}
             <section className="space-y-2">
               <label htmlFor="displayName" className="text-sm text-white/70">
                 Display name *
               </label>
+
               <Input
                 id="displayName"
                 {...register("displayName")}
@@ -165,9 +139,11 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
                     "border-red-400 focus-visible:ring-red-400"
                 )}
               />
+
               <p className="text-xs text-white/50">
                 Only letters and numbers · max 10 characters
               </p>
+
               {errors.displayName && (
                 <p className="text-xs text-red-400">
                   {errors.displayName.message}
@@ -184,6 +160,7 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
               >
                 Cancel
               </Button>
+
               <Button
                 type="submit"
                 disabled={shouldDisableSave}

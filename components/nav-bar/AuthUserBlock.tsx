@@ -1,18 +1,16 @@
 import Image from "next/image";
 import { LogoutButton } from "./LogoutButton";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { ProfileSettingsDialog } from "@/components/dialog/ProfileSettingsDialog";
 import { getUserIconUrl } from "@/utils/user-utils";
+import { NonNullUserSession } from "@/types/session";
 
-export async function AuthUserBlock() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+interface AuthUserBlockProps {
+  user: NonNullUserSession["user"];
+}
 
-  const userIcon = session?.user?.image;
-  const displayName = session?.user?.name;
-  const initials = displayName?.slice(0, 2).toUpperCase();
+export function AuthUserBlock({ user }: AuthUserBlockProps) {
+  const { image: userIcon, name: displayName } = user;
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
     <div className="flex items-center gap-2">
@@ -40,8 +38,8 @@ export async function AuthUserBlock() {
 
       {/* Profile settings */}
       <ProfileSettingsDialog
-        displayName={displayName ?? ""}
-        initials={initials ?? ""}
+        displayName={displayName}
+        initials={initials}
         imageUrl={userIcon}
       />
 

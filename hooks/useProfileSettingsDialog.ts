@@ -182,11 +182,18 @@ export const useProfileSettingsDialog = ({
       );
       setPendingIconDataUrl(rounded);
       setPreviewUrl(rounded);
+      setImageSrc(null); // Clear imageSrc to close the cropping dialog
       toast.success("Crop applied");
     } catch (error) {
       console.error("Failed to crop image:", error);
       toast.error("Unable to crop image");
     }
+  };
+
+  const handleCancelCrop = () => {
+    setImageSrc(null);
+    setCrop(undefined);
+    setCompletedCrop(null);
   };
 
   const handleRemoveIcon = () => {
@@ -203,7 +210,7 @@ export const useProfileSettingsDialog = ({
 
   const uploadIcon = async (dataUrl: string): Promise<string | null> => {
     const blob = await dataUrlToBlob(dataUrl);
-    const file = new File([blob], "profile-icon.png", { type: blob.type });
+    const file = new File([blob], "profile-icon.jpg", { type: blob.type });
     const formData = new FormData();
     formData.append("file", file);
 
@@ -301,8 +308,8 @@ export const useProfileSettingsDialog = ({
     handleFileChange,
     handleCropComplete,
     handleApplyCrop,
+    handleCancelCrop,
     handleRemoveIcon,
     onSubmit,
   };
 };
-

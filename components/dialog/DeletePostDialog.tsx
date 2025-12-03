@@ -36,16 +36,18 @@ export const DeletePostDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="text-white cursor-pointer hover:bg-white/10 border-0">
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onDelete}
-            className="bg-red-600 hover:bg-red-700 focus:ring-red-600 text-white cursor-pointer"
-            disabled={isDeleting}
-          >
-            {isDeleting ? "Deleting..." : "Delete"}
-          </AlertDialogAction>
+          <div className="flex items-center justify-center gap-2">
+            <AlertDialogCancel className="text-white cursor-pointer bg-zinc-800 hover:bg-white/10 border-0 focus:outline-none w-1/2">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onDelete}
+              className="bg-red-600 hover:bg-red-700 text-white cursor-pointer w-1/2"
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </div>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

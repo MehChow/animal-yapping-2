@@ -14,17 +14,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getUserIconUrl } from "@/utils/user-utils";
 
 interface PostCardProps {
   post: Post;
   onLikeToggle: (postId: string) => void;
   onDelete: (postId: string) => void;
 }
-
-const getImageUrl = (imageKey: string): string => {
-  const publicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
-  return publicUrl ? `${publicUrl}/${imageKey}` : "";
-};
 
 export const PostCard = ({ post, onLikeToggle, onDelete }: PostCardProps) => {
   const {
@@ -45,7 +41,7 @@ export const PostCard = ({ post, onLikeToggle, onDelete }: PostCardProps) => {
         {/* User Image */}
         <div className="w-10 h-10 rounded-full relative overflow-hidden shrink-0">
           <Image
-            src={getImageUrl(post.author.image || "")}
+            src={getUserIconUrl(post.author.image ?? "")}
             alt={post.author.name || "User"}
             fill
             className="object-cover"
@@ -67,17 +63,17 @@ export const PostCard = ({ post, onLikeToggle, onDelete }: PostCardProps) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="p-1 text-gray-400 hover:text-white hover:bg-gray-800 rounded transition-colors"
+              className="p-1 text-gray-400 hover:text-white hover:bg-gray-800 rounded transition-colors focus:outline-none"
               aria-label="Post options"
             >
               <MoreHorizontal className="size-4" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuContent align="end" className="w-40 border-0 bg-white">
             <DropdownMenuItem
               onClick={() => setShowDeleteDialog(true)}
               disabled={isDeleting}
-              className="text-red-400 focus:text-red-300 focus:bg-red-950"
+              className="text-red-500 font-medium hover:bg-red-500 hover:text-white"
             >
               Delete post
             </DropdownMenuItem>

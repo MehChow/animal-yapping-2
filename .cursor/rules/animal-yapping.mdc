@@ -45,3 +45,9 @@ Follow these rules when you write code:
 - Use Zod for all form validation.
 - Use pnpm for package manager.
 - For all components (especially client component), extract the state and business logic into custom hook to centralize the related logics to maintain a clean codebase.
+- For all Dialogs, use the color theme "bg-zinc-900 border-zinc-800 text-white".
+- For all Dialogs' button, apply "cursor-pointer" and use the following color theme:
+  -> Cancel: "bg-zinc-800 hover:bg-white/10"
+  -> Delete: "bg-red-600 hover:bg-red-700"
+  -> Save: "bg-green-500 hover:bg-green-600"
+  -> Others: "bg-purple-500 hover:bg-purple-600"

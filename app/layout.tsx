@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Tektur } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/nav-bar/Header";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { Toaster } from "@/components/ui/sonner";
 
 const tektur = Tektur({
@@ -22,17 +20,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const session = await auth.api.getSession({
-    headers: headersList,
-  });
-
   return (
     <html lang="en" className={`${tektur.className} no-scrollbar`}>
       <body className="antialiased bg-black">
         <Header />
         {children}
-        <Toaster />
+        <Toaster className="text-black bg-white" />
       </body>
     </html>
   );

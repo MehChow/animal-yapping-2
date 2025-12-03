@@ -31,19 +31,20 @@ export const getRoundedCroppedImage = async (
 
   const scaleX = image.naturalWidth / image.width;
   const scaleY = image.naturalHeight / image.height;
-  const pixelRatio = window.devicePixelRatio || 1;
+
+  // Fixed size for profile icons (smaller for better performance and smaller base64)
+  const targetSize = 200;
 
   const size = Math.min(crop.width, crop.height);
   const sourceWidth = size * scaleX;
   const sourceHeight = size * scaleY;
 
-  canvas.width = size * pixelRatio;
-  canvas.height = size * pixelRatio;
+  canvas.width = targetSize;
+  canvas.height = targetSize;
 
-  ctx.scale(pixelRatio, pixelRatio);
   ctx.imageSmoothingQuality = "high";
   ctx.beginPath();
-  ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
+  ctx.arc(targetSize / 2, targetSize / 2, targetSize / 2, 0, 2 * Math.PI);
   ctx.closePath();
   ctx.clip();
 
@@ -55,10 +56,11 @@ export const getRoundedCroppedImage = async (
     sourceHeight,
     0,
     0,
-    size,
-    size
+    targetSize,
+    targetSize
   );
 
-  return canvas.toDataURL("image/png");
+  // Use JPEG with quality compression to reduce file size
+  return canvas.toDataURL("image/jpeg", 0.85);
 };
 

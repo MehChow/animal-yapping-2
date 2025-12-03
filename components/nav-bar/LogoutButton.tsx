@@ -31,7 +31,8 @@ export function LogoutButton() {
       <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
-          className="group relative flex items-center justify-start text-white cursor-pointer hover:bg-accent-foreground hover:text-white w-12 pl-3 pr-2 overflow-hidden transition-all duration-300 ease-in-out hover:w-28"
+          className="group relative flex items-center justify-start text-white cursor-pointer hover:bg-accent-foreground 
+              hover:text-white w-12 pl-3 pr-2 overflow-hidden transition-all duration-300 ease-in-out hover:w-28"
         >
           <LogOutIcon className="size-5 shrink-0" />
           <span className="ml-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
@@ -39,7 +40,7 @@ export function LogoutButton() {
           </span>
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -47,10 +48,13 @@ export function LogoutButton() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer">
+          <AlertDialogCancel className="cursor-pointer border-0 bg-zinc-800 hover:bg-white/10">
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction className="cursor-pointer" onClick={handleLogout}>
+          <AlertDialogAction
+            className="cursor-pointer bg-red-600 hover:bg-red-700 text-white"
+            onClick={handleLogout}
+          >
             Logout
           </AlertDialogAction>
         </AlertDialogFooter>

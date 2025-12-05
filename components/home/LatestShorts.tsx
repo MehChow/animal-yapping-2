@@ -49,11 +49,14 @@ export const LatestShorts = ({ shorts }: LatestShortsProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-blue-300 text-[5vw] font-bold text-center w-full">
+      <h2
+        className="text-blue-300 text-[5vw] font-bold text-center w-full 
+                  md:text-[clamp(1rem,2.5vw,32px)] md:text-left"
+      >
         🕗Shorts
       </h2>
 
-      <div className="w-full relative">
+      <div className="w-full relative pb-4">
         <Carousel
           opts={{
             align: "start",

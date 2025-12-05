@@ -16,7 +16,10 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-green-300 text-[5vw] font-bold text-center w-full">
+      <h2
+        className="text-green-300 text-[5vw] font-bold text-center w-full 
+                md:text-[clamp(1rem,2.5vw,32px)] md:text-left"
+      >
         ✨Latest Video
       </h2>
 
@@ -26,7 +29,7 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
         <div className="gradient-content w-full h-full relative">
           {/* Top full width overlay with text */}
           <div className="absolute w-full h-24 rounded-t-xl bg-linear-to-t from-transparent to-black/60 top-0 transition-all duration-300 z-10 pointer-events-none">
-            <p className="text-white text-[3vw] font-bold pl-4 pt-3 transition-all duration-300">
+            <p className="text-white text-[3vw] font-bold pl-4 pt-3 transition-all duration-300 md:text-[clamp(1rem,2vw,1.5rem)]">
               {video.title}
             </p>
           </div>

@@ -18,7 +18,7 @@ export const CommunityFeed = () => {
   if (isLoading) {
     return (
       <>
-        <h2 className="text-purple-300 text-[5vw] font-bold text-center w-full">
+        <h2 className="text-purple-300 text-[5vw] font-bold text-center w-full md:text-[clamp(1rem,2.5vw,32px)]">
           📃Bullsheet
         </h2>
         <div className="flex items-center justify-center py-10">
@@ -31,7 +31,7 @@ export const CommunityFeed = () => {
   if (posts.length === 0) {
     return (
       <>
-        <h2 className="text-purple-300 text-[5vw] font-bold text-center w-full">
+        <h2 className="text-purple-300 text-[5vw] font-bold text-center w-full md:text-[clamp(1rem,2.5vw,32px)]">
           📃Bullsheet
         </h2>
         <div className="text-center py-10 text-gray-400">
@@ -43,7 +43,7 @@ export const CommunityFeed = () => {
 
   return (
     <>
-      <h2 className="text-purple-300 text-[5vw] font-bold text-center w-full">
+      <h2 className="text-purple-300 text-[5vw] font-bold text-center w-full md:text-[clamp(1rem,2.5vw,32px)]">
         📃Bullsheet
       </h2>
 
@@ -57,13 +57,15 @@ export const CommunityFeed = () => {
           />
         ))}
         <div ref={loadMoreRef} className="h-10" />
+
         {isLoadingMore && (
           <div className="flex items-center justify-center py-4">
             <Loader2 className="size-6 animate-spin text-purple-400" />
           </div>
         )}
+
         {!hasMore && posts.length > 0 && (
-          <div className="text-center py-4 text-gray-500 text-sm">
+          <div className="text-center py-4 text-white/30 text-sm font-bold">
             No more posts
           </div>
         )}

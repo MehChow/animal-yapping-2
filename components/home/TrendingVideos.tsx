@@ -16,7 +16,10 @@ export const TrendingVideos = ({ trendingVideos }: TrendingVideosProps) => {
   return (
     <>
       {/* Title */}
-      <h2 className="text-orange-300 text-[5vw] font-bold text-center w-full">
+      <h2
+        className="text-orange-300 text-[5vw] font-bold text-center w-full 
+                  md:text-[clamp(1rem,2.5vw,32px)] md:text-left"
+      >
         🔥Trending
       </h2>
 
@@ -66,7 +69,7 @@ const VideoCard = ({ video }: { video: Video }) => {
       {/* Metadata */}
       <div className="flex flex-row gap-2 pointer-events-none">
         {/* Uploader icon */}
-        <div className="w-6 h-6 rounded-full relative overflow-hidden shrink-0">
+        <div className="w-6 h-6 rounded-full relative overflow-hidden shrink-0 sm:w-8 sm:h-8 transition-all duration-300">
           <Image
             src={getUserIconUrl(video.uploadedBy.image)}
             alt={video.uploadedBy.name || "Anonymous"}

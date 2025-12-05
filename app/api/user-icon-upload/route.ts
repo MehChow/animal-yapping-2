@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import sharp from "sharp";
 import { requireAuth } from "@/lib/auth-utils";
 import { USER_ICON_CONSTRAINTS } from "@/lib/constants";
 
@@ -70,32 +71,36 @@ export async function POST(request: NextRequest) {
     }
 
     const client = getR2Client();
-    const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).substring(2, 10);
-    const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const objectKey = `user_icons/${user.id}-${timestamp}-${randomStr}.${extension}`;
+    const objectKey = `user_icons/${user.id}.webp`;
+    const cacheBuster = Date.now().toString();
 
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const originalBuffer = Buffer.from(arrayBuffer);
+
+    const webpBuffer = await sharp(originalBuffer)
+      .toFormat("webp", { quality: 85 })
+      .toBuffer();
 
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: objectKey,
-      Body: buffer,
-      ContentType: file.type,
-      CacheControl: "public, max-age=31536000",
+      Body: webpBuffer,
+      ContentType: "image/webp",
+      CacheControl: "public, max-age=0, must-revalidate",
     });
 
     await client.send(command);
 
-    const normalizedRelativePath = `/${objectKey}`;
+    const cacheBustedKey = `${objectKey}?v=${cacheBuster}`;
+    const normalizedRelativePath = `${objectKey}`;
     const publicUrl = process.env.R2_PUBLIC_URL
-      ? `${process.env.R2_PUBLIC_URL}/${objectKey}`
-      : normalizedRelativePath;
+      ? `${process.env.R2_PUBLIC_URL}/${cacheBustedKey}`
+      : `${normalizedRelativePath}?v=${cacheBuster}`;
 
     return NextResponse.json({
       success: true,
       objectKey,
+      cacheBustedKey,
       publicUrl,
     });
   } catch (error) {

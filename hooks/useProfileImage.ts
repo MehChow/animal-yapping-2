@@ -255,7 +255,9 @@ export const useProfileImage = ({
         }
 
         // Use tryCatch for JSON parsing
-        const { data: json, error: parseError } = await tryCatch(response.json());
+        const { data: json, error: parseError } = await tryCatch(
+          response.json()
+        );
 
         if (parseError) {
           throw new Error("Upload response parsing failed");
@@ -265,11 +267,18 @@ export const useProfileImage = ({
           throw new Error(json?.error || "Upload failed");
         }
 
-        const uploadedUrl = (json.publicUrl || json.objectKey) as string | null;
-        dispatch({ type: "SET_SAVED_URL", payload: uploadedUrl });
-        onImageChange?.(uploadedUrl);
+        const cacheBustedKey =
+          (json.cacheBustedKey as string | null) ??
+          (json.objectKey as string | null);
+        const previewUrl =
+          (json.publicUrl as string | null) ??
+          (json.cacheBustedKey as string | null) ??
+          (json.objectKey as string | null);
 
-        return uploadedUrl;
+        dispatch({ type: "SET_SAVED_URL", payload: previewUrl });
+        onImageChange?.(cacheBustedKey);
+
+        return cacheBustedKey;
       } finally {
         dispatch({ type: "END_UPLOAD" });
       }

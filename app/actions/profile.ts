@@ -47,8 +47,8 @@ export const updateProfileSettings = async (
     console.error("Error updating profile settings:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unable to update profile",
+      error:
+        error instanceof Error ? error.message : "Unable to update profile",
     };
   }
 };
-

@@ -13,6 +13,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { getUserIconUrl } from "@/utils/user-utils";
 
 interface LatestShortsProps {
   shorts: Video[];
@@ -90,8 +91,8 @@ export const LatestShorts = ({ shorts }: LatestShortsProps) => {
                     <div className="flex flex-row items-center gap-2 w-full">
                       <div className="w-8 h-8 shrink-0 rounded-full relative overflow-hidden">
                         <Image
-                          src="/default_icon.png"
-                          alt="Uploader"
+                          src={getUserIconUrl(short.uploadedBy.image)}
+                          alt={short.uploadedBy.name || "Anonymous"}
                           fill
                           className="object-cover"
                           sizes="32px"

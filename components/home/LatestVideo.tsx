@@ -4,6 +4,7 @@ import { Eye } from "lucide-react";
 import { Video } from "@/types/video";
 import Link from "next/link";
 import Image from "next/image";
+import { getUserIconUrl } from "@/utils/user-utils";
 
 interface LatestVideoProps {
   video: Video;
@@ -56,8 +57,8 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
         {/* Uploader icon */}
         <div className="w-10 h-10 rounded-full m-1 relative transition-all duration-300">
           <Image
-            src="/default_icon.png"
-            alt="Uploader"
+            src={getUserIconUrl(video.uploadedBy.image)}
+            alt={video.uploadedBy.name || "Anonymous"}
             fill
             className="object-cover rounded-full"
           />

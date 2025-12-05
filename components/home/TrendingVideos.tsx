@@ -1,6 +1,7 @@
 import { formatDuration, formatRelativeTime } from "@/lib/format-utils";
 import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
+import { getUserIconUrl } from "@/utils/user-utils";
 import { Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,6 +38,7 @@ export const TrendingVideos = ({ trendingVideos }: TrendingVideosProps) => {
 };
 
 const VideoCard = ({ video }: { video: Video }) => {
+  console.log(video.uploadedById);
   return (
     <Link
       href={`/video/${video.id}`}
@@ -67,8 +69,8 @@ const VideoCard = ({ video }: { video: Video }) => {
         {/* Uploader icon */}
         <div className="w-6 h-6 rounded-full relative overflow-hidden shrink-0">
           <Image
-            src="/default_icon.png"
-            alt="Uploader"
+            src={getUserIconUrl(video.uploadedBy.image)}
+            alt={video.uploadedBy.name || "Anonymous"}
             fill
             className="rounded-full"
           />

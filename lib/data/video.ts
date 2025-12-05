@@ -114,6 +114,15 @@ export const getTrendingVideos = async (limit: number = 10) => {
       orderBy: {
         viewCount: "desc",
       },
+      include: {
+        uploadedBy: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
     });
 
     return {

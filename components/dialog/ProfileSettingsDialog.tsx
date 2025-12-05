@@ -18,17 +18,20 @@ import { DiscardProfileChangesDialog } from "./DiscardProfileChangesDialog";
 import { CropImageDialog } from "./CropImageDialog";
 import { Spinner } from "../ui/spinner";
 import { ProfileIconPreview } from "../ui/ProfileIconPreview";
+import { ImageErrorBoundary } from "../error/ImageErrorBoundary";
 
 type ProfileSettingsDialogProps = {
   displayName: string;
   imageUrl?: string | null;
   initials: string;
+  userId: string;
 };
 
 export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
   displayName,
   imageUrl,
   initials,
+  userId,
 }) => {
   const {
     isDialogOpen,
@@ -39,8 +42,6 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
     imageSrc,
     previewUrl,
     crop,
-    setCrop,
-    handleImageLoad,
     errors,
     register,
     fileInputRef,
@@ -50,14 +51,17 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
     handleCancelDiscard,
     handleFileButtonClick,
     handleFileChange,
+    handleImageLoad,
     handleCropComplete,
     handleApplyCrop,
     handleCancelCrop,
     handleRemoveIcon,
     onSubmit,
+    setCrop,
   } = useProfileSettingsDialog({
     initialName: displayName,
     initialImage: imageUrl,
+    userId,
   });
 
   const shouldDisableSave =
@@ -71,7 +75,7 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
             variant="ghost"
             size="icon"
             aria-label="Open profile settings"
-            className="size-8 rounded-full text-white hover:bg-white/10 cursor-pointer"
+            className="size-8 rounded-full text-white hover:bg-white/10 hover:text-white cursor-pointer"
           >
             <SettingsIcon className="size-4" />
           </Button>
@@ -181,17 +185,19 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
       />
 
       {/* Crop Image Dialog */}
-      <CropImageDialog
-        isOpen={!!imageSrc}
-        imageSrc={imageSrc}
-        crop={crop}
-        setCrop={setCrop}
-        handleImageLoad={handleImageLoad}
-        handleCropComplete={handleCropComplete}
-        handleApplyCrop={handleApplyCrop}
-        handleCancelCrop={handleCancelCrop}
-        imgRef={imgRef}
-      />
+      <ImageErrorBoundary>
+        <CropImageDialog
+          isOpen={!!imageSrc}
+          imageSrc={imageSrc}
+          crop={crop}
+          setCrop={setCrop}
+          handleImageLoad={handleImageLoad}
+          handleCropComplete={handleCropComplete}
+          handleApplyCrop={handleApplyCrop}
+          handleCancelCrop={handleCancelCrop}
+          imgRef={imgRef}
+        />
+      </ImageErrorBoundary>
     </>
   );
 };

@@ -9,19 +9,18 @@ import {
   type ProfileSettingsForm,
 } from "@/lib/validations/user";
 import { updateProfileSettings } from "@/app/actions/profile";
+import { tryCatch } from "@/lib/try-catch";
 
 type UseProfileFormProps = {
   initialName: string;
   initialImage: string | null;
+  userId: string;
   onFormStateChange: (data: {
     savedDisplayName: string;
     savedIconUrl: string | null | undefined;
     previewUrl: string | null | undefined;
   }) => void;
-  onFormReset: (data: {
-    displayName: string;
-    customIconUrl: string | null;
-  }) => void;
+  onFormReset: () => void;
   onSubmitStart: () => void;
   onSubmitEnd: () => void;
   onSubmitSuccess: () => void;
@@ -33,6 +32,7 @@ type UseProfileFormProps = {
 export const useProfileForm = ({
   initialName,
   initialImage,
+  userId,
   onFormStateChange,
   onFormReset,
   onSubmitStart,
@@ -60,7 +60,7 @@ export const useProfileForm = ({
   const resetForm = useCallback(
     (data: { displayName: string; customIconUrl: string | null }) => {
       reset(data);
-      onFormReset(data);
+      onFormReset();
     },
     [reset, onFormReset]
   );
@@ -68,25 +68,77 @@ export const useProfileForm = ({
   const onSubmit = handleSubmit(async (values) => {
     onSubmitStart();
 
-    try {
-      let finalIconUrl = values.customIconUrl ?? null;
+    // Optimistic updates - immediately update UI
+    const optimisticDisplayName = values.displayName;
+    const optimisticIconUrl = values.customIconUrl ?? null;
 
-      const pendingIconDataUrl = getPendingIconData();
-      if (pendingIconDataUrl) {
-        const uploadedUrl = await uploadIcon(pendingIconDataUrl);
-        finalIconUrl = uploadedUrl ?? null;
+    // Apply optimistic updates immediately
+    onFormStateChange({
+      savedDisplayName: optimisticDisplayName,
+      savedIconUrl: optimisticIconUrl,
+      previewUrl: optimisticIconUrl,
+    });
+
+    // Handle image upload with tryCatch
+    let finalIconUrl = optimisticIconUrl;
+    const pendingIconDataUrl = getPendingIconData();
+
+    if (pendingIconDataUrl) {
+      const { data: uploadedUrl, error: uploadError } = await tryCatch(
+        uploadIcon(pendingIconDataUrl)
+      );
+
+      if (uploadError) {
+        console.error("Failed to upload image:", uploadError);
+        toast.error("Failed to upload image");
+
+        // Rollback optimistic updates on error
+        onFormStateChange({
+          savedDisplayName: initialName,
+          savedIconUrl: initialImage ?? null,
+          previewUrl: initialImage ?? null,
+        });
+
+        resetForm({
+          displayName: initialName,
+          customIconUrl: initialImage ?? null,
+        });
+
+        onSubmitEnd();
+        return;
       }
 
-      const payload: ProfileSettingsForm = {
-        displayName: values.displayName,
-        customIconUrl: finalIconUrl,
-      };
+      finalIconUrl = uploadedUrl ?? optimisticIconUrl;
+    }
 
-      const result = await updateProfileSettings(payload);
-      if (!result.success) {
-        throw new Error(result.error || "Failed to save settings");
-      }
+    const payload: ProfileSettingsForm = {
+      displayName: optimisticDisplayName,
+      customIconUrl: finalIconUrl,
+    };
 
+    // Handle profile update with tryCatch
+    const { data: result, error: updateError } = await tryCatch(
+      updateProfileSettings(payload)
+    );
+
+    if (updateError || !result?.success) {
+      console.error("Failed to save profile:", updateError);
+      const errorMessage =
+        updateError?.message || result?.error || "Save failed";
+      toast.error(errorMessage);
+
+      // Rollback optimistic updates on error
+      onFormStateChange({
+        savedDisplayName: initialName,
+        savedIconUrl: initialImage ?? null,
+        previewUrl: initialImage ?? null,
+      });
+
+      resetForm({
+        displayName: initialName,
+        customIconUrl: initialImage ?? null,
+      });
+    } else {
       toast.success("Profile updated");
       onFormStateChange({
         savedDisplayName: payload.displayName,
@@ -100,20 +152,20 @@ export const useProfileForm = ({
       });
 
       // Dispatch custom event to notify other components about profile update
-      window.dispatchEvent(new CustomEvent('profileUpdated', {
-        detail: {
-          displayName: payload.displayName,
-          imageUrl: payload.customIconUrl,
-        }
-      }));
+      window.dispatchEvent(
+        new CustomEvent("profileUpdated", {
+          detail: {
+            userId,
+            displayName: payload.displayName,
+            imageUrl: payload.customIconUrl,
+          },
+        })
+      );
 
       onSubmitSuccess();
-    } catch (error) {
-      console.error("Failed to save profile:", error);
-      toast.error(error instanceof Error ? error.message : "Save failed");
-    } finally {
-      onSubmitEnd();
     }
+
+    onSubmitEnd();
   });
 
   return {

@@ -1,138 +1,120 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
-import { useImageCrop } from "./useImageCrop";
-import { useImageUpload } from "./useImageUpload";
+import { useProfileImage } from "./useProfileImage";
 import { useDialogState } from "./useDialogState";
 import { useProfileForm } from "./useProfileForm";
 
 type UseProfileSettingsDialogProps = {
   initialName: string;
   initialImage?: string | null;
+  userId: string;
 };
 
 export const useProfileSettingsDialog = ({
   initialName,
   initialImage,
+  userId,
 }: UseProfileSettingsDialogProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const [savedDisplayName, setSavedDisplayName] = useState(initialName);
-  const [savedIconUrl, setSavedIconUrl] = useState<string | null>(
-    initialImage ?? null
-  );
-  const [previewUrl, setPreviewUrl] = useState<string | null>(
-    initialImage ?? null
-  );
-  const [pendingIconDataUrl, setPendingIconDataUrl] = useState<string | null>(
-    null
-  );
 
+  // Use the new consolidated profile image hook
   const {
+    savedUrl: savedIconUrl,
+    previewUrl,
+    croppedDataUrl,
     imageSrc,
     crop,
-    setCrop,
-    handleCropComplete,
-    handleImageLoad,
-    handleApplyCrop,
-    handleCancelCrop,
-    startCropping,
-    imgRef,
-  } = useImageCrop({
-    onCropApplied: (croppedDataUrl: string) => {
-      setPendingIconDataUrl(croppedDataUrl);
-      setPreviewUrl(croppedDataUrl);
-      toast.success("Crop applied");
-    },
-  });
-
-  const {
     isUploading,
+    isCropping,
+    imgRef,
     fileInputRef,
     handleFileButtonClick,
     handleFileChange,
+    handleImageLoad,
+    handleCropComplete,
+    handleApplyCrop,
+    handleCancelCrop,
     uploadIcon,
-  } = useImageUpload({
-    onFileSelected: (dataUrl: string) => {
-      startCropping(dataUrl);
-      setPreviewUrl(dataUrl);
-      setPendingIconDataUrl(null);
-    },
-    onUploadComplete: (uploadedUrl: string | null) => {
-      // Handle upload completion if needed
+    removeImage,
+    resetToSaved,
+    setCrop,
+  } = useProfileImage({
+    initialImage,
+    onImageChange: (newUrl) => {
+      // Update form when image changes
+      setValue("customIconUrl", newUrl, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     },
   });
 
+  // Form state change handlers
   const onFormStateChange = useCallback(
     ({
-      savedDisplayName,
-      savedIconUrl,
-      previewUrl,
+      savedDisplayName: newDisplayName,
+      savedIconUrl: newIconUrl,
+      previewUrl: newPreviewUrl,
     }: {
       savedDisplayName: string;
       savedIconUrl: string | null | undefined;
       previewUrl: string | null | undefined;
     }) => {
-      setSavedDisplayName(savedDisplayName);
-      setSavedIconUrl(savedIconUrl ?? null);
-      setPreviewUrl(previewUrl ?? null);
-      setPendingIconDataUrl(null);
-      handleCancelCrop();
+      setSavedDisplayName(newDisplayName);
+      // Image state is managed by useProfileImage hook
     },
-    [handleCancelCrop]
+    []
   );
 
-  const onFormReset = useCallback(
-    ({
-      displayName,
-      customIconUrl,
-    }: {
-      displayName: string;
-      customIconUrl: string | null;
-    }) => {
-      setPreviewUrl(customIconUrl);
-      setPendingIconDataUrl(null);
-      handleCancelCrop();
-    },
-    [handleCancelCrop]
-  );
+  const onFormReset = useCallback(() => {
+    resetToSaved();
+  }, [resetToSaved]);
 
+  // Form submission callbacks
   const onSubmitStart = useCallback(() => setIsSaving(true), []);
   const onSubmitEnd = useCallback(() => setIsSaving(false), []);
+
   const getPendingIconData = useCallback(
-    () => pendingIconDataUrl,
-    [pendingIconDataUrl]
+    () => croppedDataUrl,
+    [croppedDataUrl]
   );
   const getIsUploading = useCallback(() => isUploading, [isUploading]);
 
-  // Placeholder for onSubmitSuccess, will be set after useDialogState
-  const onSubmitSuccessRef = useRef<() => void>(() => {});
+  // Ref to hold the forceCloseDialog function
+  const forceCloseDialogRef = useRef<() => void>(() => {});
 
   const { register, errors, isDirty, setValue, resetForm, onSubmit } =
     useProfileForm({
       initialName,
       initialImage: initialImage ?? null,
+      userId,
       onFormStateChange,
       onFormReset,
       onSubmitStart,
       onSubmitEnd,
-      onSubmitSuccess: () => onSubmitSuccessRef.current(),
+      onSubmitSuccess: () => forceCloseDialogRef.current(),
       getPendingIconData,
       getIsUploading,
       uploadIcon,
     });
 
+  // Calculate unsaved changes - now much simpler
   const hasUnsavedChanges = useMemo(() => {
-    return isDirty || !!imageSrc || pendingIconDataUrl !== null;
-  }, [imageSrc, isDirty, pendingIconDataUrl]);
+    return isDirty || isCropping || !!croppedDataUrl;
+  }, [isDirty, isCropping, croppedDataUrl]);
 
+  // Reset form state
   const resetFormState = useCallback(() => {
     resetForm({
       displayName: savedDisplayName,
       customIconUrl: savedIconUrl,
     });
-  }, [resetForm, savedDisplayName, savedIconUrl]);
+    resetToSaved();
+  }, [resetForm, savedDisplayName, savedIconUrl, resetToSaved]);
 
+  // Dialog state management
   const {
     isDialogOpen,
     isDiscardDialogOpen,
@@ -145,56 +127,79 @@ export const useProfileSettingsDialog = ({
     onDiscardChanges: resetFormState,
   });
 
-  // Set the onSubmitSuccess callback after useDialogState is initialized
-  onSubmitSuccessRef.current = () => forceCloseDialog();
+  // Update the ref with the actual function
+  forceCloseDialogRef.current = forceCloseDialog;
 
-  const handleRemoveIcon = () => {
-    handleCancelCrop(); // Cancel any ongoing crop operation
-    setPendingIconDataUrl(null);
-    setPreviewUrl(null);
+  // Remove icon handler
+  const handleRemoveIcon = useCallback(() => {
+    removeImage();
     setValue("customIconUrl", null, {
       shouldDirty: true,
       shouldValidate: true,
     });
-  };
+  }, [removeImage, setValue]);
 
+  // Reset state when dialog closes and there are no unsaved changes
   useEffect(() => {
-    if (isDialogOpen || isDirty) {
+    if (isDialogOpen || isDirty || isCropping) {
       return;
     }
+
     setSavedDisplayName(initialName);
-    setSavedIconUrl(initialImage ?? null);
-    setPreviewUrl(initialImage ?? null);
     resetForm({
       displayName: initialName,
       customIconUrl: initialImage ?? null,
     });
-  }, [initialImage, initialName, isDialogOpen, isDirty, resetForm]);
+    resetToSaved();
+  }, [
+    initialImage,
+    initialName,
+    isDialogOpen,
+    isDirty,
+    isCropping,
+    resetForm,
+    resetToSaved,
+  ]);
 
   return {
+    // Dialog state
     isDialogOpen,
     isDiscardDialogOpen,
+
+    // Loading states
     isUploading,
     isSaving,
+
+    // Form state
     hasUnsavedChanges,
-    imageSrc,
     previewUrl,
-    crop,
-    setCrop,
-    handleImageLoad,
     errors,
+
+    // Image state
+    imageSrc,
+    crop,
+
+    // Form controls
     register,
+
+    // Refs
     fileInputRef,
     imgRef,
+
+    // Handlers
     handleDialogOpenChange,
     handleDiscardChanges,
     handleCancelDiscard,
     handleFileButtonClick,
     handleFileChange,
+    handleImageLoad,
     handleCropComplete,
     handleApplyCrop,
     handleCancelCrop,
     handleRemoveIcon,
     onSubmit,
+
+    // Crop controls
+    setCrop,
   };
 };

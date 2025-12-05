@@ -39,14 +39,20 @@ export const PostCard = ({ post, onLikeToggle, onDelete }: PostCardProps) => {
       {/* User Info */}
       <div className="flex items-start gap-3 mb-3">
         {/* User Image */}
-        <div className="w-10 h-10 rounded-full relative overflow-hidden shrink-0">
-          <Image
-            src={getUserIconUrl(post.author.image ?? "")}
-            alt={post.author.name || "User"}
-            fill
-            className="object-cover"
-            sizes="40px"
-          />
+        <div className="w-10 h-10 rounded-full relative overflow-hidden shrink-0 bg-white/10 border border-white/20 flex items-center justify-center">
+          {post.author.image ? (
+            <Image
+              src={getUserIconUrl(post.author.image)}
+              alt={post.author.name || "User"}
+              fill
+              className="object-cover"
+              sizes="40px"
+            />
+          ) : (
+            <span className="text-xs font-semibold text-white">
+              {(post.author.name || "U").slice(0, 2).toUpperCase()}
+            </span>
+          )}
         </div>
 
         {/* User Name and Time */}

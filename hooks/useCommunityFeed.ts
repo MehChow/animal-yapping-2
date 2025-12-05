@@ -57,19 +57,41 @@ export const useCommunityFeed = (): UseCommunityFeedReturn => {
     fetchPosts();
   }, [fetchPosts]);
 
-  // Listen for profile updates and refetch posts
+  // Listen for profile updates and update posts in place
   useEffect(() => {
-    const handleProfileUpdate = () => {
-      // Refetch posts to get updated user images
-      refetch();
+    const handleProfileUpdate = (event: CustomEvent) => {
+      const { userId, displayName, imageUrl } = event.detail;
+
+      // Update posts in place to reflect the profile change
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post.author.id === userId) {
+            return {
+              ...post,
+              author: {
+                ...post.author,
+                name: displayName,
+                image: imageUrl, // This will be null when image is removed
+              },
+            };
+          }
+          return post;
+        })
+      );
     };
 
-    window.addEventListener("profileUpdated", handleProfileUpdate);
+    window.addEventListener(
+      "profileUpdated",
+      handleProfileUpdate as EventListener
+    );
 
     return () => {
-      window.removeEventListener("profileUpdated", handleProfileUpdate);
+      window.removeEventListener(
+        "profileUpdated",
+        handleProfileUpdate as EventListener
+      );
     };
-  }, [refetch]);
+  }, []);
 
   // Infinite scroll
   useEffect(() => {

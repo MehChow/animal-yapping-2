@@ -9,7 +9,7 @@ interface AuthUserBlockProps {
 }
 
 export function AuthUserBlock({ user }: AuthUserBlockProps) {
-  const { image: userIcon, name: displayName } = user;
+  const { id: userId, image: userIcon, name: displayName } = user;
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
@@ -41,6 +41,7 @@ export function AuthUserBlock({ user }: AuthUserBlockProps) {
         displayName={displayName}
         initials={initials}
         imageUrl={userIcon}
+        userId={userId}
       />
 
       <LogoutButton />

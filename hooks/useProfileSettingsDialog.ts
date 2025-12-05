@@ -124,6 +124,7 @@ export const useProfileSettingsDialog = ({
     forceCloseDialog,
   } = useDialogState({
     hasUnsavedChanges,
+    isSaving,
     onDiscardChanges: resetFormState,
   });
 

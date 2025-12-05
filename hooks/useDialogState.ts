@@ -4,11 +4,13 @@ import { useCallback, useState } from "react";
 
 type UseDialogStateProps = {
   hasUnsavedChanges: boolean;
+  isSaving?: boolean;
   onDiscardChanges: () => void;
 };
 
 export const useDialogState = ({
   hasUnsavedChanges,
+  isSaving = false,
   onDiscardChanges,
 }: UseDialogStateProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -17,6 +19,12 @@ export const useDialogState = ({
   const handleDialogOpenChange = useCallback(
     (nextOpen: boolean) => {
       if (!nextOpen) {
+        if (isSaving) {
+          // Prevent closing while saving to avoid inconsistent states
+          setIsDialogOpen(true);
+          return;
+        }
+
         if (hasUnsavedChanges) {
           setIsDiscardDialogOpen(true);
           return;
@@ -27,7 +35,7 @@ export const useDialogState = ({
       }
       setIsDialogOpen(true);
     },
-    [hasUnsavedChanges, onDiscardChanges]
+    [hasUnsavedChanges, isSaving, onDiscardChanges]
   );
 
   const handleDiscardChanges = useCallback(() => {

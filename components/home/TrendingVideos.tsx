@@ -38,7 +38,6 @@ export const TrendingVideos = ({ trendingVideos }: TrendingVideosProps) => {
 };
 
 const VideoCard = ({ video }: { video: Video }) => {
-  console.log(video.uploadedById);
   return (
     <Link
       href={`/video/${video.id}`}

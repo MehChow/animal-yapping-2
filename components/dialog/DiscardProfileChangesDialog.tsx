@@ -32,7 +32,7 @@ export const DiscardProfileChangesDialog = ({
         <AlertDialogFooter>
           <AlertDialogCancel
             onClick={handleCancelDiscard}
-            className="cursor-pointer border-0 bg-zinc-800 hover:bg-white/10"
+            className="cursor-pointer border-0 bg-zinc-800 hover:bg-white/10 hover:text-white"
           >
             Keep editing
           </AlertDialogCancel>

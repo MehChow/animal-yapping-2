@@ -79,7 +79,7 @@ export const PostCard = ({ post, onLikeToggle, onDelete }: PostCardProps) => {
             <DropdownMenuItem
               onClick={() => setShowDeleteDialog(true)}
               disabled={isDeleting}
-              className="text-red-500 font-medium hover:bg-red-500 hover:text-white"
+              className="text-red-500 font-medium focus:bg-red-500 focus:text-white"
             >
               Delete post
             </DropdownMenuItem>

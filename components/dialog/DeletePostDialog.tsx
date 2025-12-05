@@ -37,7 +37,7 @@ export const DeletePostDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <div className="flex items-center justify-center gap-2">
-            <AlertDialogCancel className="text-white cursor-pointer bg-zinc-800 hover:bg-white/10 border-0 focus:outline-none w-1/2">
+            <AlertDialogCancel className="text-white cursor-pointer bg-zinc-800 hover:bg-white/10 hover:text-white border-0 focus:outline-none w-1/2">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

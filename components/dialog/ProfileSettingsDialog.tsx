@@ -64,7 +64,7 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
     userId,
   });
 
-  const shouldDisableButton =
+  const shouldDisableSave =
     !hasUnsavedChanges || !!errors.displayName || isSaving || isUploading;
 
   return (
@@ -159,16 +159,15 @@ export const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({
               <Button
                 type="button"
                 variant="ghost"
-                disabled={shouldDisableButton}
                 onClick={() => handleDialogOpenChange(false)}
-                className="cursor-pointer bg-zinc-800 hover:bg-white/10"
+                className="cursor-pointer bg-zinc-800 hover:bg-white/10 hover:text-white"
               >
                 Cancel
               </Button>
 
               <Button
                 type="submit"
-                disabled={shouldDisableButton}
+                disabled={shouldDisableSave}
                 className="cursor-pointer bg-green-500 hover:bg-green-600"
               >
                 {isSaving ? <Spinner /> : "Save changes"}

@@ -1,8 +1,11 @@
 "use client";
 
-import { getStreamThumbnailUrl } from "@/lib/stream-utils";
+import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
 import Image from "next/image";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Carousel,
   CarouselContent,
@@ -10,57 +13,108 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useRouter } from "next/navigation";
+import { getUserIconUrl } from "@/utils/user-utils";
 
 interface LatestShortsProps {
   shorts: Video[];
 }
 
 export const LatestShorts = ({ shorts }: LatestShortsProps) => {
+  const [loadingImages, setLoadingImages] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (shorts) {
+      setLoadingImages(new Set(shorts.map((short) => short.id)));
+    }
+  }, [shorts]);
+
   if (!shorts || shorts.length === 0) return null;
-  const router = useRouter();
+
+  const handleImageLoad = (videoId: string) => {
+    setLoadingImages((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(videoId);
+      return newSet;
+    });
+  };
+
+  const handleImageError = (videoId: string) => {
+    setLoadingImages((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(videoId);
+      return newSet;
+    });
+  };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
-      <div className="flex-1 min-h-0 relative group">
+    <>
+      {/* Title */}
+      <h2
+        className="text-blue-300 text-[5vw] font-bold text-center w-full 
+                  md:text-[clamp(1rem,2.5vw,32px)] md:text-left"
+      >
+        🕗Shorts
+      </h2>
+
+      <div className="w-full relative pb-4">
         <Carousel
           opts={{
             align: "start",
             loop: false,
+            dragFree: true,
           }}
-          // Ensure the viewport (direct child div) takes full height
-          className="w-full h-full [&>div]:h-full"
+          className="w-full group"
         >
-          {/* Ensure the track takes full height */}
-          <CarouselContent className="-ml-2 md:-ml-4 h-full">
+          <CarouselContent className="-ml-2">
             {shorts.map((short) => (
               <CarouselItem
-                onClick={() => router.push(`/video/${short.id}`)}
                 key={short.id}
-                // Remove fixed basis, allow auto width based on aspect-ratio content
-                className="pl-2 md:pl-4 basis-auto h-full cursor-pointer"
+                className="pl-2 basis-auto hover:opacity-90 transition-all duration-300"
               >
-                <div className="relative h-full aspect-9/16 rounded-xl overflow-hidden border border-white/10 bg-white/5">
+                <Link
+                  href={`/video/${short.id}`}
+                  aria-label={`Watch short: ${short.title}`}
+                  className="relative block h-[250px] sm:h-[280px] aspect-9/16 rounded-xl overflow-hidden bg-white/5 cursor-pointer transition-all duration-300"
+                >
+                  {loadingImages.has(short.id) && (
+                    <Skeleton className="absolute inset-0 w-full h-full bg-white/20" />
+                  )}
                   <Image
-                    src={getStreamThumbnailUrl(short.streamUid)}
+                    src={getThumbnailUrl(short)}
                     alt={short.title}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 768px) 33vw, (max-width: 1200px) 20vw, 15vw"
+                    sizes="150px"
+                    onLoad={() => handleImageLoad(short.id)}
+                    onError={() => handleImageError(short.id)}
                   />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity flex items-end p-2">
-                    <p className="text-white font-medium truncate w-full pb-2 pl-2">
-                      {short.title}
-                    </p>
+
+                  {/* Title overlay*/}
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent flex items-end p-2">
+                    <div className="flex flex-row items-center gap-2 w-full">
+                      <div className="w-8 h-8 shrink-0 rounded-full relative overflow-hidden">
+                        <Image
+                          src={getUserIconUrl(short.uploadedBy.image)}
+                          alt={short.uploadedBy.name || "Anonymous"}
+                          fill
+                          className="object-cover"
+                          sizes="32px"
+                        />
+                      </div>
+                      <p className="text-white text-xs font-medium line-clamp-2 w-full">
+                        {short.title}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </Link>
               </CarouselItem>
             ))}
           </CarouselContent>
+
           <CarouselPrevious className="left-2 bg-black/50 hover:bg-black/70 border-none text-white h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0" />
           <CarouselNext className="right-2 bg-black/50 hover:bg-black/70 border-none text-white h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0" />
         </Carousel>
       </div>
-    </div>
+    </>
   );
 };

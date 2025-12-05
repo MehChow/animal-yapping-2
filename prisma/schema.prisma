@@ -30,6 +30,8 @@ model User {
   favorites     Favorite[]
   commentLikes  CommentLike[]
   videoViews    VideoView[]
+  posts         Post[]
+  postLikes     PostLike[]
 
   @@map("user")
 }
@@ -111,6 +113,11 @@ model Video {
   streamUid     String?   @unique // Cloudflare Stream video ID
   duration      Float?    // Video duration in seconds
   status        String    @default("ready") // "processing", "ready", "error"
+  
+  // THUMBNAIL FIELDS
+  thumbnailSource       String    @default("stream") // "stream" or "custom"
+  thumbnailTimestamp    Float?    // Timestamp in seconds (for stream source)
+  customThumbnailKey    String?   // R2 object key (for custom source)
   
   viewCount     Int       @default(0)
   uploadedById  String
@@ -203,4 +210,47 @@ model CommentLike {
   @@unique([commentId, userId])
   @@index([commentId])
   @@map("comment_like")
+}
+
+// Community Posts (Admin only)
+
+model Post {
+  id        String      @id @default(cuid())
+  content   String      @db.VarChar(1000)
+  authorId  String
+  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  images    PostImage[]
+  likes     PostLike[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([authorId])
+  @@index([createdAt(sort: Desc)])
+  @@map("post")
+}
+
+model PostImage {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  imageKey  String   // R2 object key
+  order     Int      // For ordering multiple images
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+  @@map("post_image")
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+  @@map("post_like")
 }

@@ -19,6 +19,8 @@ const navigationItems = [
   { href: "/explore", label: "Explore" },
 ];
 
+const adminItem = { href: "/admin", label: "Admin" };
+
 type MobileMenuProps = {
   isAdmin?: boolean;
 };
@@ -61,28 +63,19 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isAdmin = false }) => {
 
           {/* Navigation Links */}
           <nav className="flex flex-col gap-2">
-            {navigationItems.map((item) => (
-              <SheetClose asChild key={item.href}>
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "text-white text-lg px-4 py-3 rounded-md hover:bg-white/10 transition-colors"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              </SheetClose>
-            ))}
-            {isAdmin && (
-              <Link
-                href="/admin"
-                className={cn(
-                  "text-white text-lg px-4 py-3 rounded-md hover:bg-white/10 transition-colors"
-                )}
-              >
-                Admin
-              </Link>
+            {(isAdmin ? [...navigationItems, adminItem] : navigationItems).map(
+              (item) => (
+                <SheetClose asChild key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "text-white text-lg px-4 py-3 rounded-md hover:bg-white/10 transition-colors"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                </SheetClose>
+              )
             )}
           </nav>
         </div>

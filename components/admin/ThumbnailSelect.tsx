@@ -1,18 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { RefreshCwIcon, CheckIcon } from "lucide-react";
-import { useThumbnailGeneration } from "@/hooks/useThumbnailGeneration";
-import { useStreamUpload } from "@/hooks/useStreamUpload";
-import {
-  setStreamThumbnail,
-  checkStreamVideoStatus,
-} from "@/app/actions/stream-upload";
-import { uploadVideo } from "@/app/actions/video";
-import { toast } from "sonner";
+import { Slider } from "@/components/ui/slider";
+import { ImageIcon, UploadIcon, XIcon, LoaderIcon } from "lucide-react";
+import { formatTimestamp } from "@/lib/stream-utils";
+import { useThumbnailSelect } from "@/hooks/useThumbnailSelect";
 import type { UploadData } from "./AddVideoDialog";
+import { Spinner } from "@/components/ui/spinner";
 
 type ThumbnailSelectProps = {
   uploadData: UploadData;
@@ -25,225 +21,324 @@ export const ThumbnailSelect: React.FC<ThumbnailSelectProps> = ({
   onPublishSuccess,
   onBack,
 }) => {
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [publishProgress, setPublishProgress] = useState(0);
-
-  // Client-side thumbnail generation
   const {
-    thumbnails,
-    selectedThumbnail,
-    selectedTimestamp,
-    handleSelectThumbnail,
-    isGenerating,
-    regenerateThumbnails,
-  } = useThumbnailGeneration({
-    videoFile: uploadData.videoFile,
-    videoType: uploadData.videoType,
-  });
+    // State
+    isPublishing,
+    publishProgress,
+    currentTimestamp,
+    timestampInputValue,
+    framePreview,
+    isLoadingFrame,
+    customThumbnailPreview,
+    videoObjectUrl,
 
-  // Stream upload hook (will be used in handlePublish)
-  const { uploadToStream } = useStreamUpload();
+    // Derived
+    videoDuration,
+    isShorts,
+    isCustomSelected,
 
-  const handlePublish = async () => {
-    if (!selectedThumbnail || selectedTimestamp === null) {
-      toast.error("Please select a thumbnail");
-      return;
-    }
+    // Refs
+    videoRef,
+    fileInputRef,
 
-    if (
-      !uploadData.videoFile ||
-      !uploadData.gameType ||
-      !uploadData.title ||
-      !uploadData.videoType
-    ) {
-      toast.error("Missing required data");
-      return;
-    }
-
-    setIsPublishing(true);
-    setPublishProgress(0);
-
-    try {
-      // Step 1: Upload video to Stream (0% → 60%)
-      setPublishProgress(10);
-      toast.info("Uploading video to Stream...");
-
-      const thumbnailTimestampPct =
-        uploadData.duration && uploadData.duration > 0
-          ? Math.min(1, Math.max(0, selectedTimestamp / uploadData.duration))
-          : 0;
-
-      const videoUid = await uploadToStream({
-        videoFile: uploadData.videoFile,
-        thumbnailTimestampPct,
-      });
-
-      if (!videoUid) {
-        toast.error("Failed to upload video");
-        setIsPublishing(false);
-        return;
-      }
-
-      setPublishProgress(60);
-
-      // Step 2: Wait for video processing and set thumbnail (60% → 80%)
-      toast.info("Processing video and setting thumbnail...");
-
-      // Wait up to 30 seconds for video to be ready
-      let attempts = 0;
-      const maxAttempts = 30;
-      while (attempts < maxAttempts) {
-        const statusResult = await checkStreamVideoStatus({ uid: videoUid });
-        if (statusResult.success && statusResult.ready) {
-          break;
-        }
-        // Update progress during waiting (60% to 75%)
-        const progressIncrement = (15 / maxAttempts) * attempts;
-        setPublishProgress(60 + Math.round(progressIncrement));
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        attempts++;
-      }
-
-      const thumbResult = await setStreamThumbnail({
-        videoUid,
-        thumbnailDataUrl: selectedThumbnail,
-        timestamp: selectedTimestamp,
-      });
-
-      if (!thumbResult.success) {
-        toast.error(thumbResult.error || "Failed to set thumbnail");
-        setIsPublishing(false);
-        return;
-      }
-
-      setPublishProgress(80);
-
-      // Step 3: Save metadata to database (80% → 100%)
-      toast.info("Saving video metadata...");
-
-      const result = await uploadVideo({
-        streamUid: videoUid,
-        gameType: uploadData.gameType,
-        videoType: uploadData.videoType,
-        title: uploadData.title,
-        description: uploadData.description,
-        tags: uploadData.tags,
-        duration: uploadData.duration || undefined,
-      });
-
-      setPublishProgress(100);
-
-      if (result.success) {
-        toast.success("Video published successfully!");
-        // Call parent's success handler with videoId
-        if (result.videoId) {
-          onPublishSuccess(result.videoId);
-        }
-      } else {
-        toast.error(result.error || "Failed to publish video");
-      }
-    } catch (error) {
-      console.error("Publish error:", error);
-      toast.error("Failed to publish video");
-    } finally {
-      setIsPublishing(false);
-    }
-  };
+    // Handlers
+    handleVideoCanPlay,
+    handleSeeked,
+    handleSliderChange,
+    handleTimestampInputChange,
+    applyTimestampFromInput,
+    handleTimestampKeyDown,
+    handleCustomThumbnailSelect,
+    handleClearCustomThumbnail,
+    openFilePicker,
+    handlePublish,
+  } = useThumbnailSelect({ uploadData, onPublishSuccess });
 
   return (
     <div className="space-y-6 py-4">
-      {isGenerating ? (
-        <div className="flex flex-col items-center justify-center py-12">
-          <RefreshCwIcon className="size-12 text-white/60 animate-spin mb-4" />
-          <p className="text-white/60">Generating thumbnails from video...</p>
-        </div>
-      ) : thumbnails.length > 0 ? (
-        <>
-          <div
-            className={`grid gap-4 ${
-              uploadData.videoType === "Shorts" ? "grid-cols-5" : "grid-cols-3"
-            }`}
-          >
-            {thumbnails.map((thumbnail) => (
-              <Button
-                key={thumbnail.id}
-                onClick={() =>
-                  handleSelectThumbnail(thumbnail.data, thumbnail.timestamp)
-                }
-                variant="ghost"
-                className={`relative overflow-hidden rounded-lg border-2 transition-all cursor-pointer h-auto p-0 hover:bg-transparent ${
-                  uploadData.videoType === "Shorts"
-                    ? "aspect-9/16"
-                    : "aspect-video"
-                } ${
-                  selectedThumbnail === thumbnail.data
-                    ? "border-white/80 ring-2 ring-white/40"
-                    : "border-white/20 hover:border-white/40"
-                }`}
-              >
-                <img
-                  src={thumbnail.data}
-                  alt={`Thumbnail at ${thumbnail.timestamp}s`}
-                  className="w-full h-full object-cover"
-                />
-                {selectedThumbnail === thumbnail.data && (
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <CheckIcon className="size-12 text-white" />
-                  </div>
-                )}
-                <div className="absolute bottom-2 right-2 bg-black/60 px-2 py-1 rounded text-xs text-white">
-                  {thumbnail.timestamp}s
-                </div>
-              </Button>
-            ))}
-          </div>
+      {/* Frame Preview Section */}
+      <FramePreview
+        videoObjectUrl={videoObjectUrl}
+        videoRef={videoRef}
+        isShorts={isShorts}
+        isCustomSelected={isCustomSelected}
+        customThumbnailPreview={customThumbnailPreview}
+        framePreview={framePreview}
+        isLoadingFrame={isLoadingFrame}
+        onVideoCanPlay={handleVideoCanPlay}
+        onSeeked={handleSeeked}
+        onClearCustomThumbnail={handleClearCustomThumbnail}
+      />
 
-          <div className="flex justify-center">
-            <Button
-              onClick={regenerateThumbnails}
-              variant="ghost"
-              className="group text-white cursor-pointer hover:bg-transparent hover:text-purple-300 hover:scale-110 transition-all duration-300"
-              disabled={isGenerating || isPublishing}
-            >
-              <RefreshCwIcon className="size-4 mr-2 transition-transform duration-500 ease-in-out group-hover:rotate-180" />
-              Try Again
-            </Button>
-          </div>
-        </>
-      ) : (
-        <div className="text-center py-12 text-white/60">
-          <p>
-            No thumbnails available. Click &quot;Try Again&quot; to generate.
-          </p>
-        </div>
-      )}
+      {/* Timeline Slider Section */}
+      <TimelineSlider
+        currentTimestamp={currentTimestamp}
+        timestampInputValue={timestampInputValue}
+        videoDuration={videoDuration}
+        isCustomSelected={isCustomSelected}
+        isPublishing={isPublishing}
+        onSliderChange={handleSliderChange}
+        onTimestampInputChange={handleTimestampInputChange}
+        onTimestampBlur={applyTimestampFromInput}
+        onTimestampKeyDown={handleTimestampKeyDown}
+      />
 
-      {isPublishing && (
-        <div className="space-y-2">
-          <Progress value={publishProgress} className="h-2" />
-          <p className="text-sm text-white/60 text-center">
-            Publishing video... {publishProgress}%
-          </p>
-        </div>
-      )}
+      {/* Custom Thumbnail Upload */}
+      <CustomThumbnailUpload
+        fileInputRef={fileInputRef}
+        isPublishing={isPublishing}
+        isShorts={isShorts}
+        onFileSelect={handleCustomThumbnailSelect}
+        onButtonClick={openFilePicker}
+      />
 
-      <div className="flex justify-end gap-3 pt-4">
-        <Button
-          onClick={onBack}
-          variant="ghost"
-          className="text-white cursor-pointer"
-          disabled={isPublishing}
-        >
-          Back
-        </Button>
-        <Button
-          onClick={handlePublish}
-          disabled={!selectedThumbnail || isPublishing || isGenerating}
-          className="bg-green-600 text-white hover:bg-green-700 border border-green-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isPublishing ? "Publishing..." : "Publish Video"}
-        </Button>
-      </div>
+      {/* Publishing Progress */}
+      {isPublishing && <PublishingProgress progress={publishProgress} />}
+
+      {/* Action Buttons */}
+      <ActionButtons
+        isPublishing={isPublishing}
+        onBack={onBack}
+        onPublish={handlePublish}
+      />
     </div>
   );
 };
+
+// --- Sub-components ---
+
+type FramePreviewProps = {
+  videoObjectUrl: string | null;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  isShorts: boolean;
+  isCustomSelected: boolean;
+  customThumbnailPreview: string | null;
+  framePreview: string | null;
+  isLoadingFrame: boolean;
+  onVideoCanPlay: () => void;
+  onSeeked: () => void;
+  onClearCustomThumbnail: () => void;
+};
+
+const FramePreview: React.FC<FramePreviewProps> = ({
+  videoObjectUrl,
+  videoRef,
+  isShorts,
+  isCustomSelected,
+  customThumbnailPreview,
+  framePreview,
+  isLoadingFrame,
+  onVideoCanPlay,
+  onSeeked,
+  onClearCustomThumbnail,
+}) => (
+  <div className="flex flex-col items-center">
+    <div
+      className={`relative overflow-hidden rounded-xl border-2 border-white/10 bg-black/50 ${
+        isShorts ? "w-48 aspect-9/16" : "w-full max-w-lg aspect-video"
+      }`}
+    >
+      {/* Hidden video element for frame extraction */}
+      {videoObjectUrl && (
+        <video
+          ref={videoRef}
+          src={videoObjectUrl}
+          className="hidden"
+          muted
+          playsInline
+          preload="auto"
+          onCanPlay={onVideoCanPlay}
+          onSeeked={onSeeked}
+        />
+      )}
+
+      {/* Display frame preview or custom thumbnail */}
+      {isCustomSelected && customThumbnailPreview ? (
+        <div className="relative w-full h-full">
+          <img
+            src={customThumbnailPreview}
+            alt="Custom thumbnail preview"
+            className="w-full h-full object-cover"
+          />
+          <Button
+            onClick={onClearCustomThumbnail}
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full size-8"
+            aria-label="Remove custom thumbnail"
+          >
+            <XIcon className="size-4" />
+          </Button>
+        </div>
+      ) : framePreview ? (
+        <img
+          src={framePreview}
+          alt="Frame preview"
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          {isLoadingFrame ? (
+            <LoaderIcon className="size-8 text-white/60 animate-spin" />
+          ) : (
+            <ImageIcon className="size-12 text-white/40" />
+          )}
+        </div>
+      )}
+
+      {/* Loading overlay */}
+      {isLoadingFrame && !isCustomSelected && (
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <LoaderIcon className="size-8 text-white animate-spin" />
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+type TimelineSliderProps = {
+  currentTimestamp: number;
+  timestampInputValue: string;
+  videoDuration: number;
+  isCustomSelected: boolean;
+  isPublishing: boolean;
+  onSliderChange: (value: number[]) => void;
+  onTimestampInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onTimestampBlur: () => void;
+  onTimestampKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+};
+
+const TimelineSlider: React.FC<TimelineSliderProps> = ({
+  currentTimestamp,
+  timestampInputValue,
+  videoDuration,
+  isCustomSelected,
+  isPublishing,
+  onSliderChange,
+  onTimestampInputChange,
+  onTimestampBlur,
+  onTimestampKeyDown,
+}) => (
+  <div
+    className={`space-y-3 transition-opacity duration-200 ${
+      isCustomSelected ? "opacity-30 pointer-events-none" : "opacity-100"
+    }`}
+  >
+    <Slider
+      value={[currentTimestamp]}
+      onValueChange={onSliderChange}
+      max={videoDuration}
+      step={0.1}
+      disabled={isCustomSelected || isPublishing}
+      className="w-full **:data-[slot=slider-track]:rounded-sm **:data-[slot=slider-track]:h-8 
+              **:data-[slot=slider-track]:bg-white/20 **:data-[slot=slider-range]:bg-white/20 
+              **:data-[slot=slider-thumb]:h-12 **:data-[slot=slider-thumb]:w-1 **:data-[slot=slider-thumb]:hover:ring-1"
+    />
+
+    {/* Timestamp display and input */}
+    <div className="w-full flex items-center justify-center">
+      <Input
+        type="text"
+        placeholder="MM:SS"
+        value={timestampInputValue}
+        onChange={onTimestampInputChange}
+        onBlur={onTimestampBlur}
+        onKeyDown={onTimestampKeyDown}
+        disabled={isCustomSelected || isPublishing}
+        className="w-28 text-center rounded-2xl bg-white/10 text-white/70 placeholder:text-purple-300/50 border-none focus:text-white focus-visible:ring-0"
+        aria-label="Enter timestamp"
+      />
+    </div>
+  </div>
+);
+
+type CustomThumbnailUploadProps = {
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  isPublishing: boolean;
+  isShorts: boolean;
+  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onButtonClick: () => void;
+};
+
+const CustomThumbnailUpload: React.FC<CustomThumbnailUploadProps> = ({
+  fileInputRef,
+  isPublishing,
+  isShorts,
+  onFileSelect,
+  onButtonClick,
+}) => (
+  <>
+    <div className="flex items-center justify-center">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.heic,.heif"
+        onChange={onFileSelect}
+        className="hidden"
+        aria-label="Select custom thumbnail"
+      />
+      <Button
+        onClick={onButtonClick}
+        variant="outline"
+        disabled={isPublishing}
+        className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10 hover:text-amber-300 cursor-pointer"
+      >
+        <UploadIcon className="size-4 mr-2" />
+        Select Custom Thumbnail
+      </Button>
+    </div>
+
+    {/* Aspect ratio hint */}
+    <p className="text-center text-xs text-white/40">
+      {isShorts
+        ? "Custom thumbnails must be 9:16 aspect ratio, max 5MB (JPG, PNG, HEIC, WebP)"
+        : "Custom thumbnails must be 16:9 aspect ratio, max 5MB (JPG, PNG, HEIC, WebP)"}
+    </p>
+  </>
+);
+
+type PublishingProgressProps = {
+  progress: number;
+};
+
+const PublishingProgress: React.FC<PublishingProgressProps> = ({
+  progress,
+}) => (
+  <div className="space-y-2">
+    <Progress value={progress} className="h-2" />
+    <p className="text-sm text-white/60 text-center">
+      Publishing video... {progress}%
+    </p>
+  </div>
+);
+
+type ActionButtonsProps = {
+  isPublishing: boolean;
+  onBack: () => void;
+  onPublish: () => void;
+};
+
+const ActionButtons: React.FC<ActionButtonsProps> = ({
+  isPublishing,
+  onBack,
+  onPublish,
+}) => (
+  <div className="flex justify-end gap-3 pt-4">
+    <Button
+      onClick={onBack}
+      variant="ghost"
+      className="text-white cursor-pointer hover:bg-white/10"
+      disabled={isPublishing}
+    >
+      Back
+    </Button>
+    <Button
+      onClick={onPublish}
+      disabled={isPublishing}
+      className="bg-green-600 text-white hover:bg-green-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {isPublishing && <Spinner />}
+      {isPublishing ? "Publishing..." : "Upload"}
+    </Button>
+  </div>
+);

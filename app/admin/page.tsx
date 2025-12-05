@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/auth-utils";
 import { PrismaClient } from "@/app/generated/prisma/client";
 import { AddVideoDialog } from "@/components/admin/AddVideoDialog";
+import { AddPostDialog } from "@/components/admin/AddPostDialog";
 
 const prisma = new PrismaClient();
 
@@ -27,7 +28,10 @@ const AdminPage = async () => {
               Welcome back, {user.name || user.email}!
             </p>
           </div>
-          <AddVideoDialog />
+          <div className="flex gap-3">
+            <AddPostDialog />
+            <AddVideoDialog />
+          </div>
         </div>
 
         {/* Statistics Cards */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { getStreamThumbnailUrl } from "@/lib/stream-utils";
+import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
 import { MasonryProps } from "masonic";
 import dynamic from "next/dynamic";
@@ -50,7 +50,7 @@ const MasonryCard = ({ index, data }: MasonryCardProps) => {
         <div className="relative mb-3">
           <div className="bg-gray-800 rounded-2xl aspect-9/16 transition-colors relative overflow-hidden">
             <Image
-              src={getStreamThumbnailUrl(data.streamUid)}
+              src={getThumbnailUrl(data)}
               alt={data.title}
               fill
               className="object-cover transition-opacity duration-300 rounded-2xl z-10"

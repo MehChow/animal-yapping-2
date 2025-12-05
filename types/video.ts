@@ -1,3 +1,5 @@
+export type ThumbnailSource = "stream" | "custom";
+
 export type Video = {
   id: string;
   title: string;
@@ -12,6 +14,11 @@ export type Video = {
   uploadedById: string;
   createdAt: string;
   updatedAt: string;
+  // Thumbnail fields
+  thumbnailSource: ThumbnailSource;
+  thumbnailTimestamp: number | null;
+  customThumbnailKey: string | null;
+  // Relations
   uploadedBy: {
     id: string;
     name: string;

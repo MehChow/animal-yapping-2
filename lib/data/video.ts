@@ -145,3 +145,47 @@ export const getTrendingVideos = async (limit: number = 10) => {
     };
   }
 };
+
+export const getVideos = async (limit: number = 10) => {
+  try {
+    const videos = await prisma.video.findMany({
+      where: {
+        videoType: "Normal",
+        streamUid: { not: null },
+      },
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        uploadedBy: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    if (!videos) {
+      return { success: false, error: "No videos found" };
+    }
+
+    return {
+      success: true,
+      videos: videos.map((video) => ({
+        ...video,
+        createdAt: video.createdAt.toISOString(),
+        updatedAt: video.updatedAt.toISOString(),
+      })),
+    };
+  } catch (error) {
+    console.error("Error fetching videos:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch videos",
+      videos: [],
+    };
+  }
+};

@@ -23,7 +23,7 @@ import { VideoUpload } from "./VideoUpload";
 import { VideoMetadata } from "./VideoMetadata";
 import { ThumbnailSelect } from "./ThumbnailSelect";
 import { Button } from "@/components/ui/button";
-import { PlusIcon, PartyPopperIcon, AlertTriangleIcon } from "lucide-react";
+import { VideoIcon, PartyPopperIcon, AlertTriangleIcon } from "lucide-react";
 import { useUploadVideo } from "@/hooks/useUploadVideo";
 
 export type UploadData = {
@@ -62,9 +62,9 @@ export const AddVideoDialog = () => {
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="bg-white/10 text-white hover:bg-white/20 border border-white/20 cursor-pointer"
+        className="bg-green-600/20 text-green-300 hover:bg-green-600/30 border border-green-500/30 cursor-pointer"
       >
-        <PlusIcon className="size-4 mr-2" />
+        <VideoIcon className="size-4 mr-2" />
         Add Video
       </Button>
 

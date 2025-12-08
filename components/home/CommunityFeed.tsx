@@ -3,8 +3,17 @@
 import { Loader2 } from "lucide-react";
 import { useCommunityFeed } from "@/hooks/useCommunityFeed";
 import { PostCard } from "@/components/community/PostCard";
+import { Post } from "@/types/post";
 
-export const CommunityFeed = () => {
+interface CommunityFeedProps {
+  initialPosts: Post[];
+  initialNextCursor?: string;
+}
+
+export const CommunityFeed = ({
+  initialPosts,
+  initialNextCursor,
+}: CommunityFeedProps) => {
   const {
     posts,
     isLoading,
@@ -13,7 +22,7 @@ export const CommunityFeed = () => {
     loadMoreRef,
     handleLikeToggle,
     handleDelete,
-  } = useCommunityFeed();
+  } = useCommunityFeed({ initialPosts, initialNextCursor });
 
   if (isLoading) {
     return (

@@ -2,6 +2,11 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { getPosts } from "@/app/actions/posts";
 import { Post } from "@/types/post";
 
+interface UseCommunityFeedOptions {
+  initialPosts?: Post[];
+  initialNextCursor?: string;
+}
+
 interface UseCommunityFeedReturn {
   posts: Post[];
   isLoading: boolean;
@@ -13,12 +18,22 @@ interface UseCommunityFeedReturn {
   refetch: () => void;
 }
 
-export const useCommunityFeed = (): UseCommunityFeedReturn => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [nextCursor, setNextCursor] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState(true);
+export const useCommunityFeed = (
+  options: UseCommunityFeedOptions = {}
+): UseCommunityFeedReturn => {
+  const { initialPosts, initialNextCursor } = options;
+
+  // Check if initial data was explicitly provided (even if empty array)
+  const hasInitialData = "initialPosts" in options;
+
+  const [posts, setPosts] = useState<Post[]>(initialPosts || []);
+  const [nextCursor, setNextCursor] = useState<string | undefined>(
+    initialNextCursor
+  );
+  // Only show loading if initial data wasn't provided
+  const [isLoading, setIsLoading] = useState(!hasInitialData);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(!!initialNextCursor);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const fetchPosts = useCallback(async (cursor?: string) => {
@@ -52,10 +67,13 @@ export const useCommunityFeed = (): UseCommunityFeedReturn => {
     fetchPosts(); // Refetch from the beginning
   }, [fetchPosts]);
 
-  // Initial fetch
+  // Initial fetch only if initial data wasn't explicitly provided
+  // If initialPosts is an empty array, it means server already checked and there are no posts
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    if (!hasInitialData) {
+      fetchPosts();
+    }
+  }, [fetchPosts, hasInitialData]);
 
   // Listen for profile updates and update posts in place
   useEffect(() => {

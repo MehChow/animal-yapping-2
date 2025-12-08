@@ -10,11 +10,18 @@ import {
   getTrendingVideos,
 } from "@/lib/data/video";
 import { Video } from "@/types/video";
+import { getPosts } from "@/lib/data/post";
+import { getCurrentUser } from "@/lib/auth-utils";
+import { Post } from "@/types/post";
 
 export default async function HomePage() {
   const latestVideo = await getLatestVideo();
   const latestShorts = await getLatestShorts(10);
   const trendingVideosData = await getTrendingVideos(6);
+
+  // Pre-fetch initial posts for CommunityFeed
+  const user = await getCurrentUser();
+  const initialPostsData = await getPosts({ limit: 10, userId: user?.id });
 
   if (!trendingVideosData.success) {
     return (
@@ -40,9 +47,19 @@ export default async function HomePage() {
     );
   }
 
+  if (!initialPostsData.success) {
+    return (
+      <div className="text-white text-center text-2xl font-bold">
+        Error: {initialPostsData.error}
+      </div>
+    );
+  }
+
   const { shorts } = latestShorts;
   const { video } = latestVideo;
   const { trendingVideos } = trendingVideosData;
+  const initialPosts = (initialPostsData.posts || []) as Post[];
+  const initialNextCursor = initialPostsData.nextCursor;
 
   return (
     <>
@@ -94,9 +111,12 @@ export default async function HomePage() {
         <section
           id="posts"
           className="w-full flex flex-col items-center justify-start gap-2 scroll-mt-20 
-                 md:col-span-4 md:h-full md:overflow-y-auto" // Assigns 4 columns on medium screens
+                 md:col-span-4 md:h-full md:overflow-y-auto md:sticky" // Assigns 4 columns on medium screens
         >
-          <CommunityFeed />
+          <CommunityFeed
+            initialPosts={initialPosts}
+            initialNextCursor={initialNextCursor}
+          />
         </section>
         {/* ------------------ END RIGHT SIDE SECTION ------------------ */}
       </div>

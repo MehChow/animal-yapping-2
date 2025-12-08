@@ -3,7 +3,6 @@ import { LatestShorts } from "@/components/home/LatestShorts";
 import { LatestVideo } from "@/components/home/LatestVideo";
 import { SectionNavigation } from "@/components/home/SectionNavigation";
 import { TrendingVideos } from "@/components/home/TrendingVideos";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
   getLatestShorts,
@@ -94,8 +93,8 @@ export default async function HomePage() {
         {/* Community section*/}
         <section
           id="posts"
-          className="w-full flex flex-col items-center justify-center gap-2 scroll-mt-20 
-                 md:col-span-4 md:h-full md:overflow-y-auto md:sticky" // Assigns 4 columns on medium screens
+          className="w-full flex flex-col items-center justify-start gap-2 scroll-mt-20 
+                 md:col-span-4 md:h-full md:overflow-y-auto" // Assigns 4 columns on medium screens
         >
           <CommunityFeed />
         </section>

@@ -1,14 +1,34 @@
 import { DeleteButton } from "@/components/admin/manage-video/delete-button";
 import { EditButton } from "@/components/admin/manage-video/edit-button";
+import { ManageVideoSort } from "@/components/admin/manage-video/sort-select";
 import { Separator } from "@/components/ui/separator";
 import { getVideos } from "@/lib/data/video";
 import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
+import {
+  DEFAULT_VIDEO_SORT,
+  isVideoSortValue,
+  VideoSortValue,
+} from "@/types/video-sort";
 import { getUserIconUrl } from "@/utils/user-utils";
+import { VideoThumbnail } from "@/components/admin/manage-video/video-thumbnail";
 import Image from "next/image";
 
-export default async function ManageVideoPage() {
-  const videos = await getVideos(10);
+type ManageVideoPageProps = {
+  searchParams: Promise<{
+    sort?: string;
+  }>;
+};
+
+const parseSortParam = (value?: string): VideoSortValue =>
+  isVideoSortValue(value) ? value : DEFAULT_VIDEO_SORT;
+
+export default async function ManageVideoPage({
+  searchParams,
+}: ManageVideoPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const sort = parseSortParam(resolvedSearchParams?.sort);
+  const videos = await getVideos(10, sort);
   if (!videos.success) {
     return (
       <div className="text-white text-center text-2xl font-bold">
@@ -20,8 +40,11 @@ export default async function ManageVideoPage() {
 
   return (
     <div className="min-h-screen container mx-auto pt-32 px-8 transition-all duration-300">
-      {/* Title */}
-      <h1 className="text-4xl font-bold text-white mb-8">Manage Video</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+        {/* Title */}
+        <h1 className="text-4xl font-bold text-white">Manage Video</h1>
+        <ManageVideoSort initialValue={sort} />
+      </div>
 
       <div className="flex flex-col">
         {videosData?.map((video, index) => {
@@ -44,14 +67,7 @@ const VideoCard = ({ video }: { video: Video }) => {
   return (
     <div className="rounded-md border-0 shadow-lg backdrop-blur-sm transition-colors flex-row flex p-2 hover:bg-white/5">
       {/* Thumbnail */}
-      <div className="relative aspect-video h-20">
-        <Image
-          src={getThumbnailUrl(video)}
-          alt={video.title}
-          fill
-          className="object-cover rounded-md"
-        />
-      </div>
+      <VideoThumbnail src={getThumbnailUrl(video)} alt={video.title} />
 
       <div className="flex flex-col flex-1 px-2">
         {/* Title */}

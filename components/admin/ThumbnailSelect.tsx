@@ -281,7 +281,7 @@ const CustomThumbnailUpload: React.FC<CustomThumbnailUploadProps> = ({
         onClick={onButtonClick}
         variant="outline"
         disabled={isPublishing}
-        className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10 hover:text-amber-300 cursor-pointer"
+        className="border-amber-500/50 text-amber-400 bg-amber-500/10 hover:bg-amber-600/10 hover:text-amber-300 cursor-pointer"
       >
         <UploadIcon className="size-4 mr-2" />
         Select Custom Thumbnail

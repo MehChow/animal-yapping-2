@@ -126,7 +126,7 @@ export const AddVideoDialog = () => {
           <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
             <AlertDialogCancel
               onClick={handleCancelClose}
-              className="flex-1 border-white/20 bg-transparent text-white hover:bg-white/10 cursor-pointer"
+              className="flex-1 border-white/20 bg-zinc-800 hover:bg-white/10 text-white hover:text-white cursor-pointer"
             >
               Continue Editing
             </AlertDialogCancel>

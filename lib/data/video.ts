@@ -146,7 +146,31 @@ export const getTrendingVideos = async (limit: number = 10) => {
   }
 };
 
-export const getVideos = async (limit: number = 10) => {
+import { DEFAULT_VIDEO_SORT, VideoSortValue } from "@/types/video-sort";
+
+type VideoOrderBy =
+  | { createdAt: "asc" | "desc" }
+  | { viewCount: "desc" }
+  | { likes: { _count: "desc" } };
+
+const resolveVideoOrderBy = (sort: VideoSortValue): VideoOrderBy => {
+  switch (sort) {
+    case "earliest":
+      return { createdAt: "asc" };
+    case "liked":
+      return { likes: { _count: "desc" } };
+    case "viewed":
+      return { viewCount: "desc" };
+    case "latest":
+    default:
+      return { createdAt: "desc" };
+  }
+};
+
+export const getVideos = async (
+  limit: number = 10,
+  sort: VideoSortValue = DEFAULT_VIDEO_SORT,
+) => {
   try {
     const videos = await prisma.video.findMany({
       where: {
@@ -154,15 +178,18 @@ export const getVideos = async (limit: number = 10) => {
         streamUid: { not: null },
       },
       take: limit,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: resolveVideoOrderBy(sort),
       include: {
         uploadedBy: {
           select: {
             id: true,
             name: true,
             image: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
           },
         },
       },

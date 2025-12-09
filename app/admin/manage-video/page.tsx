@@ -1,5 +1,6 @@
 import { DeleteButton } from "@/components/admin/manage-video/delete-button";
 import { EditButton } from "@/components/admin/manage-video/edit-button";
+import { Separator } from "@/components/ui/separator";
 import { getVideos } from "@/lib/data/video";
 import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
@@ -18,13 +19,21 @@ export default async function ManageVideoPage() {
   const { videos: videosData } = videos;
 
   return (
-    <div className="min-h-screen pt-32 px-8">
+    <div className="min-h-screen container mx-auto pt-32 px-8 transition-all duration-300">
       {/* Title */}
       <h1 className="text-4xl font-bold text-white mb-8">Manage Video</h1>
 
-      <div className="flex flex-col gap-4">
-        {videosData?.map((video) => {
-          return <VideoCard key={video.id} video={video as Video} />;
+      <div className="flex flex-col">
+        {videosData?.map((video, index) => {
+          const isLast = index === videosData.length - 1;
+
+          return (
+            <div key={video.id}>
+              <VideoCard video={video as Video} />
+              {/* Conditionally render the Separator */}
+              {!isLast && <Separator className="w-full h-1 bg-white/10 my-4" />}
+            </div>
+          );
         })}
       </div>
     </div>
@@ -33,7 +42,7 @@ export default async function ManageVideoPage() {
 
 const VideoCard = ({ video }: { video: Video }) => {
   return (
-    <div className="bg-white/5 rounded-md border-0 shadow-lg backdrop-blur-sm transition-colors flex-row flex p-1">
+    <div className="rounded-md border-0 shadow-lg backdrop-blur-sm transition-colors flex-row flex p-2 hover:bg-white/5">
       {/* Thumbnail */}
       <div className="relative aspect-video h-20">
         <Image
@@ -66,7 +75,7 @@ const VideoCard = ({ video }: { video: Video }) => {
 
       <div className="flex flex-row gap-1 items-end">
         <EditButton />
-        <DeleteButton />
+        <DeleteButton videoId={video.id} />
       </div>
     </div>
   );

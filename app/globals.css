@@ -225,5 +225,6 @@
   position: relative;
   z-index: 2;
   background: black;
-  border-radius: 0.5rem;
+  border-radius: inherit;
+  overflow: hidden;
 }

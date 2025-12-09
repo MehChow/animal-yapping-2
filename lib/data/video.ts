@@ -147,6 +147,7 @@ export const getTrendingVideos = async (limit: number = 10) => {
 };
 
 import { DEFAULT_VIDEO_SORT, VideoSortValue } from "@/types/video-sort";
+import { VideoType } from "@/utils/video-utils";
 
 type VideoOrderBy =
   | { createdAt: "asc" | "desc" }
@@ -169,12 +170,13 @@ const resolveVideoOrderBy = (sort: VideoSortValue): VideoOrderBy => {
 
 export const getVideos = async (
   limit: number = 10,
-  sort: VideoSortValue = DEFAULT_VIDEO_SORT,
+  type: VideoType = "Normal",
+  sort: VideoSortValue = DEFAULT_VIDEO_SORT
 ) => {
   try {
     const videos = await prisma.video.findMany({
       where: {
-        videoType: "Normal",
+        videoType: type,
         streamUid: { not: null },
       },
       take: limit,

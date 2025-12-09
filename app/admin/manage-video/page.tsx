@@ -1,6 +1,7 @@
 import { DeleteButton } from "@/components/admin/manage-video/delete-button";
 import { EditButton } from "@/components/admin/manage-video/edit-button";
 import { ManageVideoSort } from "@/components/admin/manage-video/sort-select";
+import { ManageVideoTabs } from "@/components/admin/manage-video/video-tabs";
 import { Separator } from "@/components/ui/separator";
 import { getVideos } from "@/lib/data/video";
 import { getThumbnailUrl } from "@/lib/stream-utils";
@@ -10,25 +11,31 @@ import {
   isVideoSortValue,
   VideoSortValue,
 } from "@/types/video-sort";
-import { getUserIconUrl } from "@/utils/user-utils";
 import { VideoThumbnail } from "@/components/admin/manage-video/video-thumbnail";
-import Image from "next/image";
+import { isVideoTypeValue, VideoType } from "@/utils/video-utils";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 type ManageVideoPageProps = {
   searchParams: Promise<{
     sort?: string;
+    type?: string;
   }>;
 };
 
 const parseSortParam = (value?: string): VideoSortValue =>
   isVideoSortValue(value) ? value : DEFAULT_VIDEO_SORT;
 
+const parseTypeParam = (value?: string): VideoType =>
+  isVideoTypeValue(value) ? value : "Normal";
+
 export default async function ManageVideoPage({
   searchParams,
 }: ManageVideoPageProps) {
   const resolvedSearchParams = await searchParams;
   const sort = parseSortParam(resolvedSearchParams?.sort);
-  const videos = await getVideos(10, sort);
+  const type = parseTypeParam(resolvedSearchParams?.type);
+  const videos = await getVideos(10, type, sort);
+
   if (!videos.success) {
     return (
       <div className="text-white text-center text-2xl font-bold">
@@ -40,10 +47,14 @@ export default async function ManageVideoPage({
 
   return (
     <div className="min-h-screen container mx-auto pt-32 px-8 transition-all duration-300">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         {/* Title */}
         <h1 className="text-4xl font-bold text-white">Manage Video</h1>
         <ManageVideoSort initialValue={sort} />
+      </div>
+
+      <div className="mb-6">
+        <ManageVideoTabs initialType={type} />
       </div>
 
       <div className="flex flex-col">
@@ -77,14 +88,12 @@ const VideoCard = ({ video }: { video: Video }) => {
 
         {/* Uploaded by */}
         <div className="flex flex-row items-center gap-2 mt-1">
-          <div className="relative size-6 rounded-full">
-            <Image
-              src={getUserIconUrl(video.uploadedBy.image)}
-              alt={video.uploadedBy.name}
-              fill
-              className="rounded-full"
-            />
-          </div>
+          <UserAvatar
+            name={video.uploadedBy.name}
+            imageKey={video.uploadedBy.image}
+            sizeClass="size-6"
+            imageSizes="32px"
+          />
           <p className="text-white/50 text-sm">{video.uploadedBy.name}</p>
         </div>
       </div>

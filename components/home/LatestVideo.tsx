@@ -4,7 +4,7 @@ import { Eye } from "lucide-react";
 import { Video } from "@/types/video";
 import Link from "next/link";
 import Image from "next/image";
-import { getUserIconUrl } from "@/utils/user-utils";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 interface LatestVideoProps {
   video: Video;
@@ -57,15 +57,13 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
 
       {/* Uploader & metadata */}
       <div className="w-full flex flex-row py-1">
-        {/* Uploader icon */}
-        <div className="w-10 h-10 rounded-full m-1 relative transition-all duration-300">
-          <Image
-            src={getUserIconUrl(video.uploadedBy.image)}
-            alt={video.uploadedBy.name || "Anonymous"}
-            fill
-            className="object-cover rounded-full"
-          />
-        </div>
+        <UserAvatar
+          name={video.uploadedBy.name}
+          imageKey={video.uploadedBy.image}
+          sizeClass="size-10"
+          className="m-1 transition-all duration-300"
+          imageSizes="40px"
+        />
 
         {/* Uploader name & uploaded at */}
         <div className="flex flex-col justify-center items-start px-2">

@@ -6,6 +6,10 @@ import { ASPECT_RATIOS, VIDEO_CONSTRAINTS } from "@/lib/constants";
 
 export type VideoType = "Normal" | "Shorts";
 
+export const isVideoTypeValue = (value?: string | null): value is VideoType => {
+  return value === "Normal" || value === "Shorts";
+};
+
 export type VideoMetadata = {
   width: number;
   height: number;

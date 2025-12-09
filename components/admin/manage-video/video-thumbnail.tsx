@@ -29,7 +29,7 @@ export const VideoThumbnail = ({ src, alt }: VideoThumbnailProps) => {
         src={src}
         alt={alt}
         fill
-        className="object-cover rounded-md transition-opacity duration-200"
+        className="object-contain rounded-md transition-opacity duration-200"
         onLoadingComplete={handleLoad}
         priority={false}
       />

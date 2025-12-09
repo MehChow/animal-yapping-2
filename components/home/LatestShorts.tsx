@@ -13,7 +13,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { getUserIconUrl } from "@/utils/user-utils";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 interface LatestShortsProps {
   shorts: Video[];
@@ -92,15 +92,13 @@ export const LatestShorts = ({ shorts }: LatestShortsProps) => {
                   {/* Title overlay*/}
                   <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent flex items-end p-2">
                     <div className="flex flex-row items-center gap-2 w-full">
-                      <div className="w-8 h-8 shrink-0 rounded-full relative overflow-hidden">
-                        <Image
-                          src={getUserIconUrl(short.uploadedBy.image)}
-                          alt={short.uploadedBy.name || "Anonymous"}
-                          fill
-                          className="object-cover"
-                          sizes="32px"
-                        />
-                      </div>
+                      <UserAvatar
+                        name={short.uploadedBy.name}
+                        imageKey={short.uploadedBy.image}
+                        sizeClass="size-8"
+                        imageSizes="32px"
+                        className="shrink-0"
+                      />
                       <p className="text-white text-xs font-medium line-clamp-2 w-full">
                         {short.title}
                       </p>

@@ -1,7 +1,7 @@
 import { formatDuration, formatRelativeTime } from "@/lib/format-utils";
 import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
-import { getUserIconUrl } from "@/utils/user-utils";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -69,14 +69,13 @@ const VideoCard = ({ video }: { video: Video }) => {
       {/* Metadata */}
       <div className="flex flex-row gap-2 pointer-events-none">
         {/* Uploader icon */}
-        <div className="w-6 h-6 rounded-full relative overflow-hidden shrink-0 sm:w-8 sm:h-8 transition-all duration-300">
-          <Image
-            src={getUserIconUrl(video.uploadedBy.image)}
-            alt={video.uploadedBy.name || "Anonymous"}
-            fill
-            className="rounded-full"
-          />
-        </div>
+        <UserAvatar
+          name={video.uploadedBy.name}
+          imageKey={video.uploadedBy.image}
+          sizeClass="w-6 h-6 sm:w-8 sm:h-8"
+          imageSizes="32px"
+          className="transition-all duration-300"
+        />
 
         {/* Title & uploaded at */}
         <div className="flex flex-col gap-1 flex-1 min-w-0 transition-all duration-300">

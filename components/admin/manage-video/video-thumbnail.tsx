@@ -13,7 +13,7 @@ export const VideoThumbnail = ({ src, alt }: VideoThumbnailProps) => {
 
   return (
     <div
-      className="relative aspect-video h-20 overflow-hidden rounded-md"
+      className="relative aspect-video h-20 overflow-hidden rounded-md shrink-0"
       aria-busy={!isLoaded}
       aria-label={alt}
     >

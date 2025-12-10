@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 /**
  * Format video duration from seconds to human-readable format
  * @param seconds Duration in seconds (can be null)
@@ -13,7 +15,9 @@ export const formatDuration = (seconds: number | null): string => {
   const secs = Math.floor(seconds % 60);
 
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   }
   return `${minutes}:${secs.toString().padStart(2, "0")}`;
 };
@@ -64,3 +68,9 @@ export const formatRelativeTime = (dateString: string): string => {
   }
 };
 
+export const formatDate = (dateString: string): [string, string] => {
+  // format date to "MM/DD/YYYY HH:mm"
+  const formattedDate = format(new Date(dateString), "MM/dd/yyyy");
+  const formattedTime = format(new Date(dateString), "HH:mm");
+  return [formattedDate, formattedTime];
+};

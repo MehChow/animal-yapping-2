@@ -13,9 +13,8 @@ import {
 } from "@/types/video-sort";
 import { VideoThumbnail } from "@/components/admin/manage-video/video-thumbnail";
 import { isVideoTypeValue, VideoType } from "@/utils/video-utils";
-import { UserAvatar } from "@/components/ui/user-avatar";
-import { formatDistanceToNow } from "date-fns";
-import { formatDate, formatRelativeTime } from "@/lib/format-utils";
+import { UserAvatar } from "@/components/shared/user-avatar";
+import { formatDate } from "@/lib/format-utils";
 
 type ManageVideoPageProps = {
   searchParams: Promise<{
@@ -111,7 +110,7 @@ const VideoCard = ({ video }: { video: Video }) => {
       </div>
 
       <div className="flex flex-row gap-1 items-end">
-        <EditButton />
+        <EditButton videoId={video.id} />
         <DeleteButton videoId={video.id} />
       </div>
     </div>

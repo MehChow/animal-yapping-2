@@ -1,15 +1,7 @@
 /**
  * Utility functions for Cloudflare Stream and thumbnails
  */
-
-type ThumbnailSource = "stream" | "custom";
-
-type VideoThumbnailInfo = {
-  streamUid: string | null;
-  thumbnailSource?: ThumbnailSource;
-  thumbnailTimestamp?: number | null;
-  customThumbnailKey?: string | null;
-};
+import type { VideoThumbnailInfo } from "@/types/thumbnail";
 
 /**
  * Get the thumbnail URL for a video
@@ -126,4 +118,23 @@ export const parseTimestamp = (value: string): number => {
     return minutes * 60 + secs;
   }
   return parseFloat(value) || 0;
+};
+
+/**
+ * Get the Cloudflare Stream video manifest URL for playback
+ * @param streamUid The Cloudflare Stream video UID
+ * @returns The manifest URL
+ */
+export const getStreamVideoUrl = (streamUid: string | null): string | null => {
+  if (!streamUid) {
+    return null;
+  }
+
+  const customerCode = process.env.NEXT_PUBLIC_CLOUDFLARE_CUSTOMER_CODE;
+
+  if (!customerCode) {
+    return null;
+  }
+
+  return `https://${customerCode}.cloudflarestream.com/${streamUid}/manifest/video.m3u8`;
 };

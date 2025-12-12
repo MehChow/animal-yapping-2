@@ -7,8 +7,7 @@ import { uploadVideo } from "@/app/actions/video";
 import { uploadThumbnailDirect } from "@/app/actions/r2-upload";
 import type { UploadData } from "@/components/admin/AddVideoDialog";
 import { ASPECT_RATIOS, THUMBNAIL_CONSTRAINTS } from "@/lib/constants";
-
-export type ThumbnailSource = "stream" | "custom";
+import { ThumbnailSource } from "@/types/thumbnail";
 
 type UseThumbnailSelectOptions = {
   uploadData: UploadData;

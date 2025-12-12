@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { DiscardProfileChangesDialog } from "./DiscardProfileChangesDialog";
 import { CropImageDialog } from "./CropImageDialog";
 import { Spinner } from "../ui/spinner";
-import { ProfileIconPreview } from "../ui/ProfileIconPreview";
+import { ProfileIconPreview } from "../ProfileIconPreview";
 import { ImageErrorBoundary } from "../error/ImageErrorBoundary";
 
 type ProfileSettingsDialogProps = {

@@ -13,7 +13,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { UserAvatar } from "@/components/ui/user-avatar";
+import { UserAvatar } from "@/components/shared/user-avatar";
 
 interface LatestShortsProps {
   shorts: Video[];

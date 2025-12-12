@@ -4,7 +4,7 @@ import { Eye } from "lucide-react";
 import { Video } from "@/types/video";
 import Link from "next/link";
 import Image from "next/image";
-import { UserAvatar } from "@/components/ui/user-avatar";
+import { UserAvatar } from "@/components/shared/user-avatar";
 
 interface LatestVideoProps {
   video: Video;

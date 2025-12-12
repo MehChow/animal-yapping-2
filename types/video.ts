@@ -1,6 +1,6 @@
-export type ThumbnailSource = "stream" | "custom";
-
 export type Video = {
+  // Types
+  thumbnailSource: import("./thumbnail").ThumbnailSource;
   id: string;
   title: string;
   description: string;
@@ -15,7 +15,6 @@ export type Video = {
   createdAt: string;
   updatedAt: string;
   // Thumbnail fields
-  thumbnailSource: ThumbnailSource;
   thumbnailTimestamp: number | null;
   customThumbnailKey: string | null;
   // Relations

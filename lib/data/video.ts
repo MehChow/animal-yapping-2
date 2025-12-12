@@ -1,4 +1,6 @@
 import { PrismaClient } from "@/app/generated/prisma/client";
+import { DEFAULT_VIDEO_SORT, VideoSortValue } from "@/types/video-sort";
+import { VideoType } from "@/utils/video-utils";
 
 const prisma = new PrismaClient();
 
@@ -146,8 +148,47 @@ export const getTrendingVideos = async (limit: number = 10) => {
   }
 };
 
-import { DEFAULT_VIDEO_SORT, VideoSortValue } from "@/types/video-sort";
-import { VideoType } from "@/utils/video-utils";
+export const getVideoById = async (videoId: string) => {
+  try {
+    const video = await prisma.video.findUnique({
+      where: { id: videoId },
+      include: {
+        uploadedBy: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+      },
+    });
+
+    if (!video) {
+      return { success: false, error: "Video not found" };
+    }
+
+    return {
+      success: true,
+      video: {
+        ...video,
+        createdAt: video.createdAt.toISOString(),
+        updatedAt: video.updatedAt.toISOString(),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching video:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch video",
+    };
+  }
+};
 
 type VideoOrderBy =
   | { createdAt: "asc" | "desc" }

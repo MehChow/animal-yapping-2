@@ -3,7 +3,8 @@
 import { requireRole } from "@/lib/auth-utils";
 import { PrismaClient } from "@/app/generated/prisma/client";
 import { revalidatePath } from "next/cache";
-import { deleteThumbnail } from "./r2-upload";
+import { deleteThumbnail, uploadThumbnailDirect } from "./r2-upload";
+import { ThumbnailSource } from "@/types/thumbnail";
 
 const prisma = new PrismaClient();
 
@@ -16,7 +17,7 @@ type UploadVideoInput = {
   tags: string[];
   duration?: number; // Video duration
   // Thumbnail fields
-  thumbnailSource: "stream" | "custom";
+  thumbnailSource: ThumbnailSource;
   thumbnailTimestamp?: number; // Timestamp in seconds (for stream source)
   customThumbnailKey?: string; // R2 object key (for custom source)
 };
@@ -191,6 +192,180 @@ export const deleteVideo = async (input: DeleteVideoInput) => {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete video",
+    };
+  }
+};
+
+type UpdateVideoInput = {
+  videoId: string;
+  title: string;
+  description?: string;
+  tags: string[];
+  gameType: string;
+  videoType: "Normal" | "Shorts";
+  thumbnailData?: {
+    thumbnailSource: "stream" | "custom";
+    thumbnailTimestamp?: number | null;
+    customThumbnailKey?: string | null;
+    customThumbnailPreview?: string | null; // base64 data URL
+    customThumbnailContentType?: string | null;
+    oldCustomThumbnailKey?: string | null;
+  };
+};
+
+export const updateVideo = async (input: UpdateVideoInput) => {
+  try {
+    // Verify admin role
+    await requireRole(["Admin"]);
+
+    const {
+      videoId,
+      title,
+      description,
+      tags,
+      gameType,
+      videoType,
+      thumbnailData,
+    } = input;
+
+    // Validate required fields
+    if (!videoId) {
+      return {
+        success: false,
+        error: "Missing video ID",
+      };
+    }
+
+    // Check if video exists
+    const existingVideo = await prisma.video.findUnique({
+      where: { id: videoId },
+      select: {
+        id: true,
+        thumbnailSource: true,
+        thumbnailTimestamp: true,
+        customThumbnailKey: true,
+        videoType: true,
+      },
+    });
+
+    if (!existingVideo) {
+      return {
+        success: false,
+        error: "Video not found",
+      };
+    }
+
+    // Handle thumbnail updates
+    let newThumbnailSource = existingVideo.thumbnailSource;
+    let newThumbnailTimestamp: number | null = null;
+    let newCustomThumbnailKey: string | null = null;
+
+    if (thumbnailData) {
+      const {
+        thumbnailSource: newSource,
+        thumbnailTimestamp,
+        customThumbnailPreview,
+        customThumbnailContentType,
+        oldCustomThumbnailKey,
+      } = thumbnailData;
+
+      newThumbnailSource = newSource;
+
+      if (newSource === "stream") {
+        // Switching to or updating stream thumbnail
+        newThumbnailTimestamp = thumbnailTimestamp ?? null;
+        newCustomThumbnailKey = null;
+
+        // If was using custom thumbnail, delete it from R2
+        if (
+          existingVideo.thumbnailSource === "custom" &&
+          existingVideo.customThumbnailKey
+        ) {
+          try {
+            await deleteThumbnail({
+              objectKey: existingVideo.customThumbnailKey,
+            });
+          } catch (error) {
+            console.error("Error deleting old custom thumbnail:", error);
+            // Continue even if deletion fails
+          }
+        }
+      } else if (newSource === "custom") {
+        // Switching to or updating custom thumbnail
+        newThumbnailTimestamp = null;
+
+        // If uploading a new custom thumbnail
+        if (customThumbnailPreview && customThumbnailContentType) {
+          // Upload new custom thumbnail
+          const uploadResult = await uploadThumbnailDirect({
+            thumbnailBase64: customThumbnailPreview,
+            contentType: customThumbnailContentType,
+            videoType: videoType,
+          });
+
+          if (!uploadResult.success) {
+            return {
+              success: false,
+              error: uploadResult.error || "Failed to upload custom thumbnail",
+            };
+          }
+
+          newCustomThumbnailKey = uploadResult.objectKey || null;
+
+          // Delete old custom thumbnail if it exists
+          const oldKey =
+            oldCustomThumbnailKey || existingVideo.customThumbnailKey;
+          if (oldKey) {
+            try {
+              await deleteThumbnail({ objectKey: oldKey });
+            } catch (error) {
+              console.error("Error deleting old custom thumbnail:", error);
+              // Continue even if deletion fails
+            }
+          }
+        } else {
+          // Not uploading new one, keep existing
+          newCustomThumbnailKey = existingVideo.customThumbnailKey;
+        }
+      }
+    } else {
+      // No thumbnail changes, keep existing values from the fetched video
+      newThumbnailSource = existingVideo.thumbnailSource;
+      newThumbnailTimestamp = existingVideo.thumbnailTimestamp;
+      newCustomThumbnailKey = existingVideo.customThumbnailKey;
+    }
+
+    // Update video in database
+    await prisma.video.update({
+      where: { id: videoId },
+      data: {
+        title,
+        description: description || null,
+        tags,
+        gameType,
+        videoType,
+        thumbnailSource: newThumbnailSource,
+        thumbnailTimestamp: newThumbnailTimestamp,
+        customThumbnailKey: newCustomThumbnailKey,
+      },
+    });
+
+    // Revalidate pages
+    revalidatePath("/");
+    revalidatePath("/admin");
+    revalidatePath("/admin/manage-video");
+    revalidatePath(`/admin/manage-video/${videoId}`);
+    revalidatePath(`/video/${videoId}`);
+
+    return {
+      success: true,
+      message: "Video updated successfully!",
+    };
+  } catch (error) {
+    console.error("Update error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update video",
     };
   }
 };

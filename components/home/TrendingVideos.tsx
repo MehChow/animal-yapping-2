@@ -1,7 +1,7 @@
 import { formatDuration, formatRelativeTime } from "@/lib/format-utils";
 import { getThumbnailUrl } from "@/lib/stream-utils";
 import { Video } from "@/types/video";
-import { UserAvatar } from "@/components/ui/user-avatar";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import { Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

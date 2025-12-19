@@ -3,12 +3,15 @@ import { LogoutButton } from "./LogoutButton";
 import { ProfileSettingsDialog } from "@/components/dialog/ProfileSettingsDialog";
 import { getUserIconUrl } from "@/utils/user-utils";
 import { NonNullUserSession } from "@/types/session";
+import Link from "next/link";
+import { LayoutDashboardIcon } from "lucide-react";
 
 interface AuthUserBlockProps {
   user: NonNullUserSession["user"];
+  isAdmin: boolean;
 }
 
-export function AuthUserBlock({ user }: AuthUserBlockProps) {
+export function AuthUserBlock({ user, isAdmin }: AuthUserBlockProps) {
   const { id: userId, image: userIcon, name: displayName } = user;
   const initials = displayName.slice(0, 2).toUpperCase();
 
@@ -34,7 +37,7 @@ export function AuthUserBlock({ user }: AuthUserBlockProps) {
         )}
       </div>
 
-      <p className="text-sm text-white"> {displayName} </p>
+      <p className="text-sm text-white"> {displayName}</p>
 
       {/* Profile settings */}
       <ProfileSettingsDialog
@@ -43,6 +46,15 @@ export function AuthUserBlock({ user }: AuthUserBlockProps) {
         imageUrl={userIcon}
         userId={userId}
       />
+
+      {isAdmin && (
+        <Link
+          href="/admin"
+          className="text-sm text-white flex items-center gap-2 hover:bg-white/10 rounded-full p-2"
+        >
+          <LayoutDashboardIcon className="size-4" />
+        </Link>
+      )}
 
       <LogoutButton />
     </div>

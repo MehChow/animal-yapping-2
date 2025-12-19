@@ -56,6 +56,7 @@ const VideoCard = ({ video }: { video: Video }) => {
           alt={video.title}
           fill
           className="object-cover"
+          sizes="(max-width: 768px) 15vw, 30vw"
         />
 
         {/* Duration */}

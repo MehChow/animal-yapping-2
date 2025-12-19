@@ -6,6 +6,7 @@ import { Heart, Bookmark, Eye } from "lucide-react";
 import { LoginPromptDialog } from "./LoginPromptDialog";
 import { formatDistanceToNow } from "date-fns";
 import { useVideoInteractions } from "@/hooks/useVideoInteractions";
+import Link from "next/link";
 
 type VideoInfoProps = {
   video: {
@@ -108,26 +109,16 @@ export const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
 
         {/* Compact tags row */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50 text-xs py-0">
-            {video.gameType}
-          </Badge>
-          <Badge
-            className={`text-xs py-0 ${
-              video.videoType === "Shorts"
-                ? "bg-green-500/20 text-green-400 border-green-500/50"
-                : "bg-blue-500/20 text-blue-400 border-blue-500/50"
-            }`}
-          >
-            {video.videoType}
-          </Badge>
           {video.tags.slice(0, 3).map((tag) => (
-            <Badge
-              key={tag}
-              variant="outline"
-              className="border-white/20 text-white/80 text-xs py-0"
-            >
-              {tag}
-            </Badge>
+            <Link href={`/tags/${tag}`} key={tag}>
+              <Badge
+                key={tag}
+                variant="default"
+                className="border-white/20 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 text-xs"
+              >
+                {tag}
+              </Badge>
+            </Link>
           ))}
           {video.tags.length > 3 && (
             <span className="text-xs text-white/40">

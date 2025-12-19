@@ -43,6 +43,7 @@ export const LatestVideo = ({ video }: LatestVideoProps) => {
               alt={video.title}
               fill
               className="object-cover rounded-xl"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
           </Link>
         </div>

@@ -15,6 +15,7 @@ import { VideoThumbnail } from "@/components/admin/manage-video/video-thumbnail"
 import { isVideoTypeValue, VideoType } from "@/utils/video-utils";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { formatDate } from "@/lib/format-utils";
+import { requireRole } from "@/lib/auth-utils";
 
 type ManageVideoPageProps = {
   searchParams: Promise<{
@@ -32,6 +33,8 @@ const parseTypeParam = (value?: string): VideoType =>
 export default async function ManageVideoPage({
   searchParams,
 }: ManageVideoPageProps) {
+  await requireRole(["Admin"]);
+
   const resolvedSearchParams = await searchParams;
   const sort = parseSortParam(resolvedSearchParams?.sort);
   const type = parseTypeParam(resolvedSearchParams?.type);
@@ -58,7 +61,7 @@ export default async function ManageVideoPage({
         <ManageVideoSort initialValue={sort} />
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col pb-24">
         {videosData?.map((video, index) => {
           const isLast = index === videosData.length - 1;
 

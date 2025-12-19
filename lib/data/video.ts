@@ -259,3 +259,109 @@ export const getVideos = async (
     };
   }
 };
+
+/**
+ * Search videos by multiple fields (title, description, tags, uploader name)
+ * Uses case-insensitive partial matching with cursor-based pagination
+ * @param query Search query string
+ * @param limit Maximum number of results to return
+ * @param cursor Optional cursor for pagination (video ID)
+ * @returns Search results with videos matching the query
+ */
+export const searchVideos = async (
+  query: string,
+  limit: number = 10,
+  cursor?: string
+) => {
+  try {
+    if (!query.trim()) {
+      return { success: true, videos: [], query: "", nextCursor: undefined };
+    }
+
+    const videos = await prisma.video.findMany({
+      where: {
+        streamUid: { not: null },
+        OR: [
+          // Search by title
+          {
+            title: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+          // Search by description
+          {
+            description: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+          // Search by tags (array contains)
+          {
+            tags: {
+              hasSome: [query.toLowerCase()],
+            },
+          },
+          // Search by uploader name
+          {
+            uploadedBy: {
+              name: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          },
+        ],
+      },
+      take: limit + 1, // Fetch one extra to determine if there are more results
+      ...(cursor && {
+        cursor: { id: cursor },
+        skip: 1, // Skip the cursor itself
+      }),
+      orderBy: [
+        { viewCount: "desc" }, // Prioritize popular videos
+        { createdAt: "desc" }, // Then by recency
+      ],
+      include: {
+        uploadedBy: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+      },
+    });
+
+    // Determine if there are more results
+    const hasMore = videos.length > limit;
+    const resultVideos = hasMore ? videos.slice(0, limit) : videos;
+    const nextCursor = hasMore ? resultVideos[resultVideos.length - 1]?.id : undefined;
+
+    return {
+      success: true,
+      videos: resultVideos.map((video) => ({
+        ...video,
+        createdAt: video.createdAt.toISOString(),
+        updatedAt: video.updatedAt.toISOString(),
+      })),
+      query,
+      nextCursor,
+    };
+  } catch (error) {
+    console.error("Error searching videos:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to search videos",
+      videos: [],
+      query,
+      nextCursor: undefined,
+    };
+  }
+};

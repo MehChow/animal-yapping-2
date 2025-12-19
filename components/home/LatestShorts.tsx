@@ -72,7 +72,7 @@ export const LatestShorts = ({ shorts }: LatestShortsProps) => {
                 className="pl-2 basis-auto hover:opacity-90 transition-all duration-300"
               >
                 <Link
-                  href={`/video/${short.id}`}
+                  href={`/shorts/${short.id}`}
                   aria-label={`Watch short: ${short.title}`}
                   className="relative block h-[250px] sm:h-[280px] aspect-9/16 rounded-xl overflow-hidden bg-white/5 cursor-pointer transition-all duration-300"
                 >
